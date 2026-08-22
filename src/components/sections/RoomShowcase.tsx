@@ -2,10 +2,10 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import { rooms } from "@/data/rooms";
+import type { RichRoom } from "@/data/property-content";
 import ArrowIcon from "../ui/ArrowIcon";
 
-export default function RoomShowcase() {
+export default function RoomShowcase({ rooms }: { rooms: RichRoom[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [active, setActive] = useState(0);

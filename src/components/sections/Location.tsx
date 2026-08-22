@@ -5,9 +5,10 @@ import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import RevealText from "../ui/RevealText";
-import { locationImages, nearbyPlaces } from "@/data/locations";
+import type { RichContent } from "@/data/property-content";
 
-export default function Location() {
+export default function Location({ location }: { location: RichContent["location"] }) {
+  const { heading, blurb, places: nearbyPlaces, images: locationImages } = location;
   const sectionRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
@@ -39,15 +40,11 @@ export default function Location() {
               Location
             </RevealText>
             <h2 className="mt-6 font-display text-[clamp(2.75rem,7vw,5.5rem)] leading-[0.95]">
-              Hampstead
+              {heading[0]}
               <br />
-              London
+              {heading[1]}
             </h2>
-            <p className="mt-8 max-w-sm text-[15px] leading-relaxed text-bone/65">
-              Set behind a private gated entrance moments from the Heath, The
-              Residence sits within one of London&rsquo;s most established and
-              verdant neighbourhoods.
-            </p>
+            <p className="mt-8 max-w-sm text-[15px] leading-relaxed text-bone/65">{blurb}</p>
 
             <ul
               ref={listRef}
@@ -69,7 +66,7 @@ export default function Location() {
             <div className="relative aspect-4/3 w-full overflow-hidden sm:aspect-16/10">
               <Image
                 src={locationImages[0]}
-                alt="Hampstead ponds reflecting Victorian townhouses"
+                alt={`${heading[0]}, ${heading[1]}`}
                 fill
                 sizes="(min-width: 1024px) 55vw, 90vw"
                 className="object-cover"
@@ -78,7 +75,7 @@ export default function Location() {
             <div className="absolute -bottom-10 -left-6 hidden h-40 w-32 overflow-hidden border-4 border-ink shadow-2xl sm:block lg:h-48 lg:w-40">
               <Image
                 src={locationImages[1]}
-                alt="Ivy-covered townhouse near Hampstead"
+                alt={`Near ${heading[0]}`}
                 fill
                 sizes="200px"
                 className="object-cover"

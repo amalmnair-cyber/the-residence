@@ -2,12 +2,19 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { floorPlanRooms, floorPlanBounds } from "@/data/floorplan";
+import type { RichFloorPlanRoom } from "@/data/property-content";
 import { useCursor } from "@/context/CursorContext";
-import { site } from "@/data/content";
 import RevealText from "../ui/RevealText";
 
-export default function FloorPlan() {
+export default function FloorPlan({
+  propertyName,
+  rooms: floorPlanRooms,
+  bounds: floorPlanBounds,
+}: {
+  propertyName: string;
+  rooms: RichFloorPlanRoom[];
+  bounds: { x: number; y: number; w: number; h: number };
+}) {
   const [activeId, setActiveId] = useState(floorPlanRooms[0].id);
   const { show, hide } = useCursor();
   const active = floorPlanRooms.find((r) => r.id === activeId)!;
@@ -32,7 +39,7 @@ export default function FloorPlan() {
             viewBox="0 0 1000 640"
             className="w-full select-none"
             role="img"
-            aria-label={`Ground floor plan of ${site.propertyName}`}
+            aria-label={`Ground floor plan of ${propertyName}`}
           >
             <rect
               x={floorPlanBounds.x}

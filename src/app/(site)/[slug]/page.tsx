@@ -13,6 +13,7 @@ import Footer from "@/components/layout/Footer";
 import { getPropertyBySlug, getPropertyImages } from "@/lib/queries/properties";
 import { unsplash } from "@/lib/unsplash";
 import { site } from "@/data/content";
+import { richContentBySlug } from "@/data/property-content";
 
 export async function generateMetadata({
   params,
@@ -34,14 +35,6 @@ export async function generateMetadata({
     },
   };
 }
-
-// RoomShowcase/FloorPlan/Architecture/Location/Lifestyle stay Elmstead-only
-// for now: their content (specific rooms, an actual floor plan SVG,
-// specific amenities/distances) doesn't exist yet for Kiln House, and
-// showing Elmstead's would just be wrong on Kiln's page, not a reasonable
-// placeholder. Real content-authoring work for a follow-up, not a code
-// change like the rest of this conversion was.
-const RICH_CONTENT_SLUGS = new Set(["the-elmstead"]);
 
 export default async function PropertyPage({
   params,
@@ -70,7 +63,7 @@ export default async function PropertyPage({
     { value: property.max_guests, label: "Sleeps" },
   ];
 
-  const hasRichContent = RICH_CONTENT_SLUGS.has(slug);
+  const content = richContentBySlug[slug];
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const jsonLd = {
@@ -104,17 +97,21 @@ export default async function PropertyPage({
       />
       <Introduction propertyName={property.name} description={property.description} image={introImage} />
       <PropertyStats stats={stats} />
-      {hasRichContent && (
+      {content && (
         <>
-          <Architecture />
-          <RoomShowcase />
-          <FloorPlan />
-          <Location />
-          <Lifestyle />
+          <Architecture propertyName={property.name} architecture={content.architecture} />
+          <RoomShowcase rooms={content.rooms} />
+          <FloorPlan
+            propertyName={property.name}
+            rooms={content.floorPlan.rooms}
+            bounds={content.floorPlan.bounds}
+          />
+          <Location location={content.location} />
+          <Lifestyle propertyName={property.name} lifestyle={content.lifestyle} />
         </>
       )}
       <Booking property={property} />
-      <Footer />
+      <Footer propertyName={property.name} location={property.location} />
     </main>
   );
 }

@@ -5,9 +5,16 @@ import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import RevealText from "../ui/RevealText";
-import { images, architectureFeatures, site } from "@/data/content";
+import type { RichContent } from "@/data/property-content";
 
-export default function Architecture() {
+export default function Architecture({
+  propertyName,
+  architecture,
+}: {
+  propertyName: string;
+  architecture: RichContent["architecture"];
+}) {
+  const { mainImage, detailImage1, detailImage2, features: architectureFeatures } = architecture;
   const sectionRef = useRef<HTMLElement>(null);
   const mainImgRef = useRef<HTMLDivElement>(null);
   const detail1Ref = useRef<HTMLDivElement>(null);
@@ -59,8 +66,8 @@ export default function Architecture() {
       <div className="relative mt-16 h-[60vh] w-full overflow-hidden sm:h-[78vh]">
         <div ref={mainImgRef} className="absolute inset-[-6%]">
           <Image
-            src={images.architectureMain}
-            alt={`Board-formed concrete and timber facade detail of ${site.propertyName}`}
+            src={mainImage}
+            alt={`Exterior facade detail of ${propertyName}`}
             fill
             sizes="100vw"
             className="object-cover"
@@ -86,8 +93,8 @@ export default function Architecture() {
           <div className="relative aspect-3/4 overflow-hidden">
             <div ref={detail1Ref} className="absolute inset-[-6%]">
               <Image
-                src={images.architectureDetail1}
-                alt="Concrete balcony detail against the sky"
+                src={detailImage1}
+                alt={`Material and craft detail at ${propertyName}`}
                 fill
                 sizes="(min-width: 640px) 45vw, 90vw"
                 className="object-cover"
@@ -97,8 +104,8 @@ export default function Architecture() {
           <div className="relative aspect-3/4 overflow-hidden sm:mt-16">
             <div ref={detail2Ref} className="absolute inset-[-6%]">
               <Image
-                src={images.architectureStair}
-                alt="Minimalist plaster staircase"
+                src={detailImage2}
+                alt={`Interior structural detail at ${propertyName}`}
                 fill
                 sizes="(min-width: 640px) 45vw, 90vw"
                 className="object-cover"

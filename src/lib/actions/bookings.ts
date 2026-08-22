@@ -39,7 +39,7 @@ export async function submitBooking(input: unknown): Promise<SubmitBookingResult
   const supabase = createAdminClient();
   const { data: property, error: propertyError } = await supabase
     .from("properties")
-    .select("nightly_rate, cleaning_fee, currency, min_nights, max_guests")
+    .select("name, nightly_rate, cleaning_fee, currency, min_nights, max_guests")
     .eq("id", propertyId)
     .single();
 
@@ -86,6 +86,7 @@ export async function submitBooking(input: unknown): Promise<SubmitBookingResult
 
   const emailInput = {
     bookingId: row.id as string,
+    propertyName: property.name,
     name,
     email,
     phone,
@@ -129,14 +130,30 @@ export async function updateBookingStatus(
   await requireAdmin();
 
   const supabase = await createClient();
-  const { data: row, error } = await supabase
+  const { data: rawRow, error } = await supabase
     .from("bookings")
     .update({ status, updated_at: new Date().toISOString() })
     .eq("id", bookingId)
     .select(
-      "name, email, phone, country, message, check_in, check_out, nights, guests, total_amount, currency",
+      "name, email, phone, country, message, check_in, check_out, nights, guests, total_amount, currency, properties(name)",
     )
     .single();
+  const row = rawRow as unknown as
+    | {
+        name: string;
+        email: string;
+        phone: string;
+        country: string;
+        message: string | null;
+        check_in: string;
+        check_out: string;
+        nights: number;
+        guests: number;
+        total_amount: number;
+        currency: string;
+        properties: { name: string } | null;
+      }
+    | null;
 
   if (error) {
     if (error.code === "23P01") {
@@ -156,6 +173,7 @@ export async function updateBookingStatus(
       await sendGuestStatusEmail(
         {
           bookingId,
+          propertyName: row.properties?.name ?? "your property",
           name: row.name,
           email: row.email,
           phone: row.phone,

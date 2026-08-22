@@ -5,9 +5,15 @@ import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import RevealText from "../ui/RevealText";
-import { images, lifestyleCopy } from "@/data/content";
+import type { RichContent } from "@/data/property-content";
 
-export default function Lifestyle() {
+export default function Lifestyle({
+  propertyName,
+  lifestyle,
+}: {
+  propertyName: string;
+  lifestyle: RichContent["lifestyle"];
+}) {
   const sectionRef = useRef<HTMLElement>(null);
   const imgRef = useRef<HTMLDivElement>(null);
 
@@ -40,8 +46,8 @@ export default function Lifestyle() {
     >
       <div ref={imgRef} className="absolute inset-[-6%]">
         <Image
-          src={images.lifestylePrimary}
-          alt="Soft morning light through woodland near Hampstead Heath"
+          src={lifestyle.image}
+          alt={`Lifestyle at ${propertyName}`}
           fill
           sizes="100vw"
           className="object-cover"
@@ -51,9 +57,9 @@ export default function Lifestyle() {
 
       <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
         <div className="font-display text-[clamp(2rem,6vw,4.25rem)] leading-[1.15]">
-          <RevealText as="p">{lifestyleCopy.lines[0]}</RevealText>
+          <RevealText as="p">{lifestyle.lines[0]}</RevealText>
           <RevealText as="p" delay={0.12}>
-            {lifestyleCopy.lines[1]}
+            {lifestyle.lines[1]}
           </RevealText>
         </div>
         <RevealText
@@ -61,7 +67,7 @@ export default function Lifestyle() {
           delay={0.2}
           className="mx-auto mt-8 max-w-lg text-[15px] leading-relaxed text-bone/70"
         >
-          {lifestyleCopy.body}
+          {lifestyle.body}
         </RevealText>
       </div>
     </section>

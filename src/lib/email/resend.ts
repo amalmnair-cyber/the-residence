@@ -5,6 +5,7 @@ import { formatDate } from "@/lib/date";
 
 interface BookingEmailInput {
   bookingId: string;
+  propertyName: string;
   name: string;
   email: string;
   phone: string;
@@ -50,7 +51,7 @@ export async function sendBookingNotification(input: BookingEmailInput) {
 
   const dates = `${formatDate(input.checkIn)} – ${formatDate(input.checkOut)}`;
   const html = emailShell(`
-    <h1 style="font-size: 22px; margin: 8px 0 20px;">New booking request — ${site.propertyName}</h1>
+    <h1 style="font-size: 22px; margin: 8px 0 20px;">New booking request — ${escapeHtml(input.propertyName)}</h1>
     <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
       <tr><td style="padding: 6px 0; color: #6f6a5e;">Guest</td><td style="padding: 6px 0;">${escapeHtml(input.name)}</td></tr>
       <tr><td style="padding: 6px 0; color: #6f6a5e;">Dates</td><td style="padding: 6px 0;">${dates} (${input.nights} nights)</td></tr>
@@ -78,7 +79,7 @@ export async function sendGuestReceivedEmail(input: BookingEmailInput) {
   const html = emailShell(`
     <h1 style="font-size: 22px; margin: 8px 0 20px;">Request received, ${escapeHtml(input.name.split(" ")[0])}.</h1>
     <p style="font-size: 14px; line-height: 1.6;">
-      Thank you for requesting to book ${site.propertyName}. A member of our reservations
+      Thank you for requesting to book ${escapeHtml(input.propertyName)}. A member of our reservations
       team will confirm availability and be in touch shortly.
     </p>
     ${detailsTable(input)}
@@ -105,7 +106,7 @@ export async function sendGuestStatusEmail(
       ? emailShell(`
           <h1 style="font-size: 22px; margin: 8px 0 20px;">Your stay is confirmed, ${escapeHtml(input.name.split(" ")[0])}.</h1>
           <p style="font-size: 14px; line-height: 1.6;">
-            We're delighted to confirm your stay at ${site.propertyName}.
+            We're delighted to confirm your stay at ${escapeHtml(input.propertyName)}.
           </p>
           ${detailsTable(input)}
           <p style="margin-top: 20px; font-size: 13px; line-height: 1.6;">
@@ -116,7 +117,7 @@ export async function sendGuestStatusEmail(
       : emailShell(`
           <h1 style="font-size: 22px; margin: 8px 0 20px;">About your request, ${escapeHtml(input.name.split(" ")[0])}</h1>
           <p style="font-size: 14px; line-height: 1.6;">
-            Thank you for your interest in ${site.propertyName}. Unfortunately we're unable
+            Thank you for your interest in ${escapeHtml(input.propertyName)}. Unfortunately we're unable
             to accommodate this request for ${formatDate(input.checkIn)} – ${formatDate(input.checkOut)}.
           </p>
           <p style="margin-top: 16px; font-size: 13px; line-height: 1.6;">

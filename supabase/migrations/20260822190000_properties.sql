@@ -77,6 +77,26 @@ values
    3200, 650, '£', 3, 8, 4, 4, 6800, 2, 'kiln', 1)
 on conflict (id) do nothing;
 
+-- Seed a hero + gallery image per property so the page stops relying on the
+-- hardcoded fallback in [slug]/page.tsx. Both verified to resolve on
+-- images.unsplash.com before use. Fixed ids, same idempotency pattern as
+-- the properties insert above.
+insert into public.property_images (id, property_id, url, alt, category, sort_order)
+values
+  ('61b0a7d9-2705-41a4-a7ce-d7123b155bc9', 'c7578989-730a-4add-a01e-d7d988107bd1',
+   'https://images.unsplash.com/photo-1748063578185-3d68121b11ff?q=80&w=2400&auto=format&fit=crop',
+   'The Elmstead at dusk', 'hero', 0),
+  ('ec267303-303c-4fca-88d6-9963d54de91e', 'c7578989-730a-4add-a01e-d7d988107bd1',
+   'https://images.unsplash.com/photo-1679364297777-1db77b6199be?q=80&w=1800&auto=format&fit=crop',
+   'Interior view of The Elmstead', 'gallery', 0),
+  ('65d73ec2-a503-471c-b86a-dc0661ec763a', '5a31d133-a06b-4634-837a-bc50db5a0499',
+   'https://images.unsplash.com/photo-1580051719856-fc5913b27710?q=80&w=2400&auto=format&fit=crop',
+   'The Kiln House above St Ives harbour', 'hero', 0),
+  ('5c8725ee-4bd2-458f-9a01-fa78aa98fad5', '5a31d133-a06b-4634-837a-bc50db5a0499',
+   'https://images.unsplash.com/photo-1645099815150-ec1633635a3e?q=80&w=1800&auto=format&fit=crop',
+   'St Ives harbour below The Kiln House', 'gallery', 0)
+on conflict (id) do nothing;
+
 -- bookings becomes property-aware.
 alter table public.bookings add column if not exists property_id uuid references public.properties(id);
 update public.bookings set property_id = 'c7578989-730a-4add-a01e-d7d988107bd1' where property_id is null;

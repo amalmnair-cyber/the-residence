@@ -1,16 +1,22 @@
 import { navLinks } from "@/data/navigation";
 import { site } from "@/data/content";
 
-export default function Footer() {
+export default function Footer({
+  propertyName,
+  location,
+}: {
+  propertyName: string;
+  location: string;
+}) {
   return (
     <footer className="bg-ink text-bone">
       <div className="mx-auto max-w-7xl px-6 py-20 sm:px-10 sm:py-24">
         <div className="grid gap-14 lg:grid-cols-[1.4fr_1fr_1fr]">
           <div>
-            <p className="font-display text-3xl">{site.propertyName}</p>
+            <p className="font-display text-3xl">{propertyName}</p>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-bone/55">
-              A private architectural retreat in Hampstead, London, available
-              for exclusive whole-house stays. An {site.brand} property.
+              A private architectural retreat in {location}, available for
+              exclusive whole-house stays. An {site.brand} property.
             </p>
           </div>
           <div>
@@ -37,7 +43,7 @@ export default function Footer() {
             <div className="mt-5 space-y-3 text-sm text-bone/70">
               <p>reservations@aaamresidency.co.uk</p>
               <p>+44 (0)20 7946 0891</p>
-              <p>Hampstead, London NW3</p>
+              <p>{location}</p>
             </div>
           </div>
         </div>
