@@ -65,6 +65,14 @@ export default async function PropertyPage({
 
   const content = richContentBySlug[slug];
 
+  // The Location section's big heading is derived from the same editable
+  // property.location field used everywhere else (Hero, Footer, metadata)
+  // rather than the separate hardcoded heading in property-content.ts —
+  // otherwise editing "Location" in admin wouldn't visibly change the one
+  // place on the page most obviously named "Location".
+  const [locationCity, ...locationRest] = property.location.split(",").map((s) => s.trim());
+  const locationHeading: [string, string] = [locationCity, locationRest.join(", ")];
+
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const jsonLd = {
     "@context": "https://schema.org",
@@ -106,7 +114,7 @@ export default async function PropertyPage({
             rooms={content.floorPlan.rooms}
             bounds={content.floorPlan.bounds}
           />
-          <Location location={content.location} />
+          <Location location={{ ...content.location, heading: locationHeading }} />
           <Lifestyle propertyName={property.name} lifestyle={content.lifestyle} />
         </>
       )}
