@@ -3,22 +3,12 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 
-const STORAGE_KEY = "demo-disclaimer-seen";
-
 export default function DemoDisclaimer() {
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    // localStorage doesn't exist during SSR, so this can only be checked
-    // after mount — the resulting extra render is the point, not a mistake.
-    try {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (!localStorage.getItem(STORAGE_KEY)) setOpen(true);
-    } catch {
-      // Private browsing etc. can throw on localStorage access — just skip
-      // the notice rather than crash the page over it.
-    }
-  }, []);
+  // Shows on every visit, not just the first — deliberate: the point is
+  // making sure no one mistakes this for a real business, and a one-time
+  // notice a visitor dismissed weeks ago (or never saw, because someone
+  // else shared a link straight to a section) doesn't do that reliably.
+  const [open, setOpen] = useState(true);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -30,20 +20,11 @@ export default function DemoDisclaimer() {
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") dismiss();
+      if (e.key === "Escape") setOpen(false);
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
-
-  function dismiss() {
-    try {
-      localStorage.setItem(STORAGE_KEY, "1");
-    } catch {
-      // Ignore — worst case the notice shows again next visit.
-    }
-    setOpen(false);
-  }
 
   return (
     <div
@@ -69,7 +50,7 @@ export default function DemoDisclaimer() {
         </p>
         <button
           type="button"
-          onClick={dismiss}
+          onClick={() => setOpen(false)}
           tabIndex={open ? 0 : -1}
           className="mt-6 inline-flex w-full cursor-pointer items-center justify-center rounded-full bg-ink px-8 py-3 text-[12px] uppercase tracking-[0.12em] text-bone transition-colors hover:bg-ink-2"
         >
