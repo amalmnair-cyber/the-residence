@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { bookingInputSchema, emailPattern, phonePattern } from "./validation";
-import { booking } from "@/data/booking";
 
 describe("emailPattern", () => {
   it("accepts valid addresses", () => {
@@ -37,6 +36,7 @@ describe("phonePattern", () => {
 
 function validBooking() {
   return {
+    propertyId: "c7578989-730a-4add-a01e-d7d988107bd1",
     checkIn: new Date(2026, 7, 26),
     checkOut: new Date(2026, 7, 29),
     guests: 2,
@@ -52,11 +52,16 @@ describe("bookingInputSchema", () => {
     expect(bookingInputSchema.safeParse(validBooking()).success).toBe(true);
   });
 
-  it("rejects guests over the configured max", () => {
-    const result = bookingInputSchema.safeParse({
-      ...validBooking(),
-      guests: booking.maxGuests + 1,
-    });
+  it("rejects a non-uuid propertyId", () => {
+    const result = bookingInputSchema.safeParse({ ...validBooking(), propertyId: "not-a-uuid" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects guests over the generic sanity bound", () => {
+    // The real, property-specific max (12 for Elmstead, 8 for Kiln House)
+    // is enforced in submitBooking itself, not this schema — it varies per
+    // property and the schema has no way to know which one applies yet.
+    const result = bookingInputSchema.safeParse({ ...validBooking(), guests: 21 });
     expect(result.success).toBe(false);
   });
 

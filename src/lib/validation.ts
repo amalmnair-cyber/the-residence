@@ -1,13 +1,16 @@
 import { z } from "zod";
-import { booking as bookingConfig } from "@/data/booking";
 
 export const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const phonePattern = /^[+\d][\d\s()-]{6,18}$/;
 
 export const bookingInputSchema = z.object({
+  propertyId: z.string().uuid(),
   checkIn: z.date(),
   checkOut: z.date(),
-  guests: z.number().int().min(1).max(bookingConfig.maxGuests),
+  // Generic sanity bound only — the real, property-specific max (which
+  // varies: Elmstead sleeps 12, Kiln House 8) is checked in submitBooking
+  // itself, once it knows which property this is for.
+  guests: z.number().int().min(1).max(20),
   name: z.string().trim().min(2, "Please enter your full name."),
   email: z.string().trim().regex(emailPattern, "Please enter a valid email address."),
   phone: z.string().trim().regex(phonePattern, "Please enter a valid phone number."),

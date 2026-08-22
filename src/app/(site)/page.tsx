@@ -1,29 +1,26 @@
 import Link from "next/link";
 import Image from "next/image";
+import { getProperties, getPropertyImages } from "@/lib/queries/properties";
 import { unsplash } from "@/lib/unsplash";
 
-// Hardcoded for now — switches to getProperties() once the properties
-// migration is live. Deliberately no heavy animation/JS here: this is the
-// first thing anyone sees, and the whole point of this page existing is
-// the minimalist direction, not another scroll-driven showcase.
-const properties = [
-  {
-    slug: "the-elmstead",
-    name: "The Elmstead",
-    tagline: "Designed for extraordinary living.",
-    location: "Hampstead, London",
-    image: unsplash("1748063578185-3d68121b11ff", 1600),
-  },
-  {
-    slug: "the-kiln-house",
-    name: "The Kiln House",
-    tagline: "Where the coastline sets the pace.",
-    location: "St Ives, Cornwall",
-    image: unsplash("1570231396362-9340901b2044", 1600),
-  },
-];
+// Fallbacks only used until real images are uploaded via the admin panel
+// (property_images is empty right now) — keyed by slug since these are
+// specifically each property's known-good launch photo.
+const FALLBACK_IMAGES: Record<string, string> = {
+  "the-elmstead": unsplash("1748063578185-3d68121b11ff", 1600),
+  "the-kiln-house": unsplash("1570231396362-9340901b2044", 1600),
+};
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const properties = await getProperties();
+
+  const cards = await Promise.all(
+    properties.map(async (p) => {
+      const [hero] = await getPropertyImages(p.id, "hero");
+      return { ...p, image: hero?.url ?? FALLBACK_IMAGES[p.slug] };
+    }),
+  );
+
   return (
     <main className="mx-auto min-h-screen max-w-5xl px-6 py-20 sm:py-28">
       <div className="text-center">
@@ -34,7 +31,7 @@ export default function LandingPage() {
       </div>
 
       <div className="mt-16 grid gap-8 sm:grid-cols-2">
-        {properties.map((p) => (
+        {cards.map((p) => (
           <Link
             key={p.slug}
             href={`/${p.slug}`}

@@ -1,7 +1,7 @@
 import AnimatedCounter from "../ui/AnimatedCounter";
-import { stats } from "@/data/stats";
+import type { Stat } from "@/data/stats";
 
-export default function PropertyStats() {
+export default function PropertyStats({ stats }: { stats: Stat[] }) {
   return (
     <section className="border-y border-line bg-bone py-20 sm:py-24">
       <div className="mx-auto max-w-7xl px-6 sm:px-10">

@@ -5,9 +5,14 @@ import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import RevealText from "../ui/RevealText";
-import { images, introCopy, site } from "@/data/content";
 
-export default function Introduction() {
+interface IntroductionProps {
+  propertyName: string;
+  description: string;
+  image: string;
+}
+
+export default function Introduction({ propertyName, description, image }: IntroductionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const imgRef = useRef<HTMLDivElement>(null);
 
@@ -50,19 +55,13 @@ export default function Introduction() {
             as="h2"
             className="mt-6 text-[clamp(2.25rem,5.4vw,4.75rem)] font-display leading-[1.05] text-ink"
           >
-            {introCopy.heading}
+            A New Standard of Living
           </RevealText>
 
           <div className="mt-10 max-w-lg space-y-5">
-            {introCopy.paragraphs.map((p) => (
-              <RevealText
-                key={p}
-                as="p"
-                className="text-[15px] leading-relaxed text-stone sm:text-base"
-              >
-                {p}
-              </RevealText>
-            ))}
+            <RevealText as="p" className="text-[15px] leading-relaxed text-stone sm:text-base">
+              {description}
+            </RevealText>
           </div>
         </div>
 
@@ -72,8 +71,8 @@ export default function Introduction() {
             className="relative aspect-[4/5] w-full overflow-hidden"
           >
             <Image
-              src={images.introduction}
-              alt={`${site.propertyName} exterior at twilight, framed by mature landscaping`}
+              src={image}
+              alt={`${propertyName} exterior`}
               fill
               sizes="(min-width: 1024px) 40vw, 90vw"
               className="object-cover"

@@ -56,7 +56,7 @@ insert into public.properties
    nightly_rate, cleaning_fee, currency, min_nights, max_guests,
    bedrooms, bathrooms, square_feet, floors, theme_key, sort_order)
 values
-  ('11111111-1111-1111-1111-111111111111', 'the-elmstead', 'The Elmstead',
+  ('c7578989-730a-4add-a01e-d7d988107bd1', 'the-elmstead', 'The Elmstead',
    'Designed for extraordinary living.', 'Hampstead, London',
    'A private architectural retreat, available for exclusive whole-house stays, designed around light, proportion and natural materials. Set within a quiet, gated plot moments from Hampstead Heath.',
    4500, 850, '£', 3, 12, 6, 8, 12500, 4, 'elmstead', 0)
@@ -71,7 +71,7 @@ insert into public.properties
    nightly_rate, cleaning_fee, currency, min_nights, max_guests,
    bedrooms, bathrooms, square_feet, floors, theme_key, sort_order)
 values
-  ('22222222-2222-2222-2222-222222222222', 'the-kiln-house', 'The Kiln House',
+  ('5a31d133-a06b-4634-837a-bc50db5a0499', 'the-kiln-house', 'The Kiln House',
    'Where the coastline sets the pace.', 'St Ives, Cornwall',
    'A weathered timber and slate retreat above the harbour, built around a single vast room open to the sea. Reserved entirely for you, moments from the working port and the coastal path.',
    3200, 650, '£', 3, 8, 4, 4, 6800, 2, 'kiln', 1)
@@ -79,7 +79,7 @@ on conflict (id) do nothing;
 
 -- bookings becomes property-aware.
 alter table public.bookings add column if not exists property_id uuid references public.properties(id);
-update public.bookings set property_id = '11111111-1111-1111-1111-111111111111' where property_id is null;
+update public.bookings set property_id = 'c7578989-730a-4add-a01e-d7d988107bd1' where property_id is null;
 alter table public.bookings alter column property_id set not null;
 
 create index if not exists bookings_property_idx on public.bookings (property_id);

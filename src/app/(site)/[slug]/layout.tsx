@@ -5,15 +5,7 @@ import { CursorProvider } from "@/context/CursorContext";
 import CustomCursor from "@/components/layout/CustomCursor";
 import ScrollProgress from "@/components/layout/ScrollProgress";
 import Navbar from "@/components/layout/Navbar";
-
-// Temporary until the properties migration is live: hardcoded slug ->
-// theme map. Once getPropertyBySlug() can actually query the DB, this
-// becomes `property.theme_key` instead — the data-theme wiring below
-// doesn't change either way.
-const KNOWN_SLUGS: Record<string, string> = {
-  "the-elmstead": "elmstead",
-  "the-kiln-house": "kiln",
-};
+import { getPropertyBySlug } from "@/lib/queries/properties";
 
 export default async function PropertyLayout({
   children,
@@ -23,11 +15,11 @@ export default async function PropertyLayout({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const theme = KNOWN_SLUGS[slug];
-  if (!theme) notFound();
+  const property = await getPropertyBySlug(slug);
+  if (!property) notFound();
 
   return (
-    <div data-theme={theme}>
+    <div data-theme={property.theme_key}>
       <CursorProvider>
         <SmoothScroll>
           <Navbar />

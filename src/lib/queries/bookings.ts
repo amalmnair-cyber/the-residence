@@ -4,12 +4,13 @@ import { createClient } from "@/lib/supabase/server";
 import { parseISODate } from "@/lib/date";
 import type { DateRange } from "@/data/booking";
 
-export async function getConfirmedDateRanges(): Promise<DateRange[]> {
+export async function getConfirmedDateRanges(propertyId: string): Promise<DateRange[]> {
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("bookings")
     .select("check_in, check_out")
-    .eq("status", "confirmed");
+    .eq("status", "confirmed")
+    .eq("property_id", propertyId);
 
   if (error || !data) {
     console.error("failed to load confirmed bookings", error);
@@ -37,6 +38,7 @@ export interface AdminBookingRow {
   total_amount: number;
   currency: string;
   status: "pending" | "confirmed" | "declined";
+  properties: { name: string } | null;
 }
 
 export async function getAllBookings(): Promise<AdminBookingRow[]> {
@@ -44,7 +46,7 @@ export async function getAllBookings(): Promise<AdminBookingRow[]> {
   const { data, error } = await supabase
     .from("bookings")
     .select(
-      "id, created_at, check_in, check_out, guests, name, email, phone, country, message, nights, total_amount, currency, status",
+      "id, created_at, check_in, check_out, guests, name, email, phone, country, message, nights, total_amount, currency, status, properties(name)",
     )
     .order("created_at", { ascending: false })
     .limit(200);
@@ -54,5 +56,5 @@ export async function getAllBookings(): Promise<AdminBookingRow[]> {
     return [];
   }
 
-  return data as AdminBookingRow[];
+  return data as unknown as AdminBookingRow[];
 }

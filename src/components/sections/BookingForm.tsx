@@ -5,10 +5,19 @@ import FormField from "../ui/FormField";
 import MagneticButton from "../ui/MagneticButton";
 import Calendar from "../ui/Calendar";
 import { countries } from "@/data/countries";
-import { booking, type DateRange } from "@/data/booking";
+import type { DateRange } from "@/data/booking";
 import { formatDate, nightsBetween } from "@/lib/date";
 import { emailPattern, phonePattern } from "@/lib/validation";
 import { submitBooking } from "@/lib/actions/bookings";
+
+interface BookingPropertyConfig {
+  id: string;
+  nightly_rate: number;
+  cleaning_fee: number;
+  currency: string;
+  min_nights: number;
+  max_guests: number;
+}
 
 interface FormValues {
   name: string;
@@ -38,8 +47,10 @@ function validate(values: FormValues) {
 
 export default function BookingForm({
   unavailableRanges,
+  property,
 }: {
   unavailableRanges: DateRange[];
+  property: BookingPropertyConfig;
 }) {
   const [checkIn, setCheckIn] = useState<Date | null>(null);
   const [checkOut, setCheckOut] = useState<Date | null>(null);
@@ -53,8 +64,8 @@ export default function BookingForm({
   const [submitted, setSubmitted] = useState(false);
 
   const nights = checkIn && checkOut ? nightsBetween(checkIn, checkOut) : 0;
-  const subtotal = nights * booking.nightlyRate;
-  const total = nights > 0 ? subtotal + booking.cleaningFee : 0;
+  const subtotal = nights * property.nightly_rate;
+  const total = nights > 0 ? subtotal + property.cleaning_fee : 0;
 
   const summary = useMemo(() => {
     if (!checkIn) return "Select your dates";
@@ -75,8 +86,8 @@ export default function BookingForm({
       setDateError("Please select your check-in and check-out dates.");
       return;
     }
-    if (nights < booking.minNights) {
-      setDateError(`Minimum stay is ${booking.minNights} nights.`);
+    if (nights < property.min_nights) {
+      setDateError(`Minimum stay is ${property.min_nights} nights.`);
       return;
     }
     setDateError(null);
@@ -89,6 +100,7 @@ export default function BookingForm({
 
     setSubmitting(true);
     const result = await submitBooking({
+      propertyId: property.id,
       checkIn,
       checkOut,
       guests,
@@ -133,7 +145,7 @@ export default function BookingForm({
           {guests === 1 ? "guest" : "guests"}
         </p>
         <p className="mt-1 text-[15px] text-ink">
-          Estimated total {booking.currency}
+          Estimated total {property.currency}
           {total.toLocaleString("en-GB")} · payable on arrival
         </p>
         <p className="mt-6 max-w-sm text-[13px] leading-relaxed text-stone">
@@ -168,7 +180,7 @@ export default function BookingForm({
             setDateError(null);
           }}
           unavailableRanges={unavailableRanges}
-          minNights={booking.minNights}
+          minNights={property.min_nights}
         />
 
         <div className="flex flex-col justify-between">
@@ -179,7 +191,7 @@ export default function BookingForm({
             <div className="mt-8 flex items-center justify-between border-t border-line pt-6">
               <div>
                 <p className="text-[11px] uppercase tracking-[0.16em] text-stone">Guests</p>
-                <p className="mt-1 text-sm text-ink">Up to {booking.maxGuests}</p>
+                <p className="mt-1 text-sm text-ink">Up to {property.max_guests}</p>
               </div>
               <div className="flex items-center gap-4">
                 <button
@@ -193,7 +205,7 @@ export default function BookingForm({
                 <span className="w-4 text-center font-display text-lg text-ink">{guests}</span>
                 <button
                   type="button"
-                  onClick={() => setGuests((g) => Math.min(booking.maxGuests, g + 1))}
+                  onClick={() => setGuests((g) => Math.min(property.max_guests, g + 1))}
                   aria-label="Increase guests"
                   className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-line text-ink transition-colors hover:border-ink"
                 >
@@ -206,12 +218,12 @@ export default function BookingForm({
           <div className="mt-8 space-y-2 border-t border-line pt-6 text-sm">
             <div className="flex items-center justify-between text-stone">
               <span>
-                {booking.currency}
-                {booking.nightlyRate.toLocaleString("en-GB")} × {nights || 0}{" "}
+                {property.currency}
+                {property.nightly_rate.toLocaleString("en-GB")} × {nights || 0}{" "}
                 {nights === 1 ? "night" : "nights"}
               </span>
               <span>
-                {booking.currency}
+                {property.currency}
                 {subtotal.toLocaleString("en-GB")}
               </span>
             </div>
@@ -219,14 +231,14 @@ export default function BookingForm({
               <span>Cleaning fee</span>
               <span>
                 {nights > 0
-                  ? `${booking.currency}${booking.cleaningFee.toLocaleString("en-GB")}`
+                  ? `${property.currency}${property.cleaning_fee.toLocaleString("en-GB")}`
                   : "—"}
               </span>
             </div>
             <div className="flex items-center justify-between pt-2 font-display text-lg text-ink">
               <span>Total</span>
               <span>
-                {booking.currency}
+                {property.currency}
                 {total.toLocaleString("en-GB")}
               </span>
             </div>

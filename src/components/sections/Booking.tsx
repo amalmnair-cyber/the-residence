@@ -1,10 +1,10 @@
 import RevealText from "../ui/RevealText";
 import BookingForm from "./BookingForm";
 import { getConfirmedDateRanges } from "@/lib/queries/bookings";
-import { site } from "@/data/content";
+import type { Property } from "@/lib/queries/properties";
 
-export default async function Booking() {
-  const unavailableRanges = await getConfirmedDateRanges();
+export default async function Booking({ property }: { property: Property }) {
+  const unavailableRanges = await getConfirmedDateRanges(property.id);
 
   return (
     <section id="booking" className="bg-paper py-28 sm:py-36 lg:py-44">
@@ -23,12 +23,12 @@ export default async function Booking() {
             as="p"
             className="mx-auto mt-6 max-w-md text-[15px] leading-relaxed text-stone"
           >
-            {`${site.propertyName} is available for exclusive, whole-house stays. Select your dates to check availability and request a reservation.`}
+            {`${property.name} is available for exclusive, whole-house stays. Select your dates to check availability and request a reservation.`}
           </RevealText>
         </div>
 
         <div className="relative mt-16">
-          <BookingForm unavailableRanges={unavailableRanges} />
+          <BookingForm unavailableRanges={unavailableRanges} property={property} />
         </div>
       </div>
     </section>

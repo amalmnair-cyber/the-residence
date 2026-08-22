@@ -4,9 +4,15 @@ import { useRef } from "react";
 import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import { gsap, SplitText } from "@/lib/gsap";
-import { images, site } from "@/data/content";
 
-export default function Hero() {
+interface HeroProps {
+  propertyName: string;
+  location: string;
+  tagline: string;
+  heroImage: string;
+}
+
+export default function Hero({ propertyName, location, tagline, heroImage }: HeroProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -100,8 +106,8 @@ export default function Hero() {
         <div ref={mediaRef} className="absolute inset-[-10%]">
           <Image
             ref={imgRef}
-            src={images.hero}
-            alt={`${site.propertyName}, a contemporary glass and concrete house in Hampstead, London, illuminated at dusk`}
+            src={heroImage}
+            alt={`${propertyName}, ${location}`}
             fill
             priority
             sizes="100vw"
@@ -113,16 +119,16 @@ export default function Hero() {
 
       <div className="hero-content relative z-10 flex h-full flex-col items-center justify-end px-6 pb-28 text-center sm:pb-32">
         <p className="hero-fade mb-5 text-[13px] uppercase tracking-[0.32em] text-bone/85">
-          {site.location}
+          {location}
         </p>
         <h1
           ref={titleRef}
           className="font-display text-[16vw] leading-[0.92] text-bone sm:text-[12vw] lg:text-[8.4vw]"
         >
-          {site.propertyName}
+          {propertyName}
         </h1>
         <p className="hero-fade mt-7 max-w-md text-[15px] text-bone/80 sm:text-base">
-          {site.tagline}
+          {tagline}
         </p>
       </div>
 

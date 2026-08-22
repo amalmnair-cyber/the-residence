@@ -5,7 +5,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/supabase/dal";
 import { sendBookingNotification, sendGuestReceivedEmail, sendGuestStatusEmail } from "@/lib/email/resend";
-import { booking as bookingConfig } from "@/data/booking";
 import { bookingInputSchema } from "@/lib/validation";
 import { nightsBetween, parseISODate, toISODateString } from "@/lib/date";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
@@ -34,19 +33,35 @@ export async function submitBooking(input: unknown): Promise<SubmitBookingResult
     return { ok: false, message: "Too many requests. Please try again in a few minutes." };
   }
 
-  const { checkIn, checkOut, guests, name, email, phone, country, message } = parsed.data;
+  const { propertyId, checkIn, checkOut, guests, name, email, phone, country, message } =
+    parsed.data;
 
-  const nights = nightsBetween(checkIn, checkOut);
-  if (nights < bookingConfig.minNights) {
-    return { ok: false, message: `Minimum stay is ${bookingConfig.minNights} nights.` };
+  const supabase = createAdminClient();
+  const { data: property, error: propertyError } = await supabase
+    .from("properties")
+    .select("nightly_rate, cleaning_fee, currency, min_nights, max_guests")
+    .eq("id", propertyId)
+    .single();
+
+  if (propertyError || !property) {
+    console.error("property lookup failed", propertyError);
+    return { ok: false, message: "Something went wrong. Please try again." };
   }
 
-  const totalAmount = nights * bookingConfig.nightlyRate + bookingConfig.cleaningFee;
-  const supabase = createAdminClient();
+  const nights = nightsBetween(checkIn, checkOut);
+  if (nights < property.min_nights) {
+    return { ok: false, message: `Minimum stay is ${property.min_nights} nights.` };
+  }
+  if (guests > property.max_guests) {
+    return { ok: false, message: `This property sleeps up to ${property.max_guests} guests.` };
+  }
+
+  const totalAmount = nights * property.nightly_rate + property.cleaning_fee;
 
   const { data: row, error } = await supabase
     .from("bookings")
     .insert({
+      property_id: propertyId,
       check_in: toISODateString(checkIn),
       check_out: toISODateString(checkOut),
       guests,
@@ -56,10 +71,10 @@ export async function submitBooking(input: unknown): Promise<SubmitBookingResult
       country,
       message: message || null,
       nights,
-      nightly_rate: bookingConfig.nightlyRate,
-      cleaning_fee: bookingConfig.cleaningFee,
+      nightly_rate: property.nightly_rate,
+      cleaning_fee: property.cleaning_fee,
       total_amount: totalAmount,
-      currency: bookingConfig.currency,
+      currency: property.currency,
     })
     .select("id")
     .single();
@@ -81,7 +96,7 @@ export async function submitBooking(input: unknown): Promise<SubmitBookingResult
     nights,
     guests,
     totalAmount,
-    currency: bookingConfig.currency,
+    currency: property.currency,
   };
 
   // Both non-fatal — the booking itself is already saved and is the source
@@ -98,7 +113,7 @@ export async function submitBooking(input: unknown): Promise<SubmitBookingResult
     console.error("guest received email failed", err);
   }
 
-  revalidatePath("/");
+  revalidatePath("/(site)/[slug]", "page");
   return { ok: true, bookingId: row.id as string };
 }
 
@@ -161,7 +176,7 @@ export async function updateBookingStatus(
   }
 
   revalidatePath("/admin/bookings");
-  revalidatePath("/");
+  revalidatePath("/(site)/[slug]", "page");
   return { ok: true };
 }
 
@@ -179,6 +194,6 @@ export async function deleteBooking(bookingId: string): Promise<BookingStatusRes
   // A deleted booking might have been the one blocking these dates on the
   // public calendar (if it was confirmed) — free them up immediately.
   revalidatePath("/admin/bookings");
-  revalidatePath("/");
+  revalidatePath("/(site)/[slug]", "page");
   return { ok: true };
 }

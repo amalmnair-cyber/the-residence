@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 
 export interface Property {
@@ -47,7 +48,10 @@ export async function getProperties(): Promise<Property[]> {
   return data;
 }
 
-export async function getPropertyBySlug(slug: string): Promise<Property | null> {
+// cache(): the layout and page both need this for the same request (the
+// layout to pick a theme, the page to render content) — dedupes to one
+// DB call per request instead of two.
+export const getPropertyBySlug = cache(async (slug: string): Promise<Property | null> => {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("properties")
@@ -57,7 +61,7 @@ export async function getPropertyBySlug(slug: string): Promise<Property | null> 
 
   if (error || !data) return null;
   return data;
-}
+});
 
 export async function getPropertyImages(
   propertyId: string,
