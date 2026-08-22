@@ -135,6 +135,24 @@ export async function sendGuestStatusEmail(
   });
 }
 
+export async function sendPasswordResetCode(email: string, code: string) {
+  const html = emailShell(`
+    <h1 style="font-size: 22px; margin: 8px 0 20px;">Reset your admin password</h1>
+    <p style="font-size: 14px; line-height: 1.6;">Use this code to reset your password:</p>
+    <p style="font-size: 32px; font-weight: bold; letter-spacing: 0.1em; margin: 20px 0;">${code}</p>
+    <p style="font-size: 12px; color: #6f6a5e;">
+      If you didn't request this, you can safely ignore this email.
+    </p>
+  `);
+
+  await getClient().emails.send({
+    from: `${site.brand} <onboarding@resend.dev>`,
+    to: email,
+    subject: `[${site.brand}] Your password reset code`,
+    html,
+  });
+}
+
 function escapeHtml(value: string) {
   return value
     .replace(/&/g, "&amp;")

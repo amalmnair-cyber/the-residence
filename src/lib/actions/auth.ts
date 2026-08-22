@@ -2,7 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { sendPasswordResetCode } from "@/lib/email/resend";
 
 export interface LoginState {
   error?: string;
@@ -59,14 +61,29 @@ export async function requestPasswordReset(
     return { error: "Too many attempts. Please try again in a few minutes.", email };
   }
 
-  const supabase = await createClient();
-  // No redirectTo: the email template shows a numeric code ({{ .Token }}),
-  // not a link — verified directly on this page via verifyOtp below, so
-  // there's no redirect route or allowlisted URL needed at all.
-  await supabase.auth.resetPasswordForEmail(email);
+  // Deliberately not supabase.auth.resetPasswordForEmail(): that sends via
+  // Supabase's own built-in mailer, which is separate from (and much more
+  // limited than) the Resend setup already proven reliable for booking
+  // emails. generateLink creates the same underlying recovery code without
+  // Supabase emailing anything itself — we send it ourselves via Resend.
+  const admin = createAdminClient();
+  const { data, error } = await admin.auth.admin.generateLink({ type: "recovery", email });
 
-  // Always report success, whether or not that email actually has an
-  // account — confirming/denying an address exists is an enumeration risk.
+  if (!error && data.properties?.email_otp) {
+    try {
+      await sendPasswordResetCode(email, data.properties.email_otp);
+    } catch (err) {
+      console.error("password reset email failed", err);
+    }
+  }
+  // If `error` is set, it's almost always "user not found" — logging
+  // that server-side only, never in the response: confirming or denying
+  // an address exists in the response is an account-enumeration risk.
+  else if (error) {
+    console.error("generateLink failed", error);
+  }
+
+  // Always report success either way, for the same reason.
   return { sent: true, email };
 }
 
