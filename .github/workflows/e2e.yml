@@ -1,0 +1,51 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: {}
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      # Not secret — same public URL already shipped in every page's client
+      # bundle, same reasoning as the backup workflow.
+      NEXT_PUBLIC_SUPABASE_URL: https://llzhuczmhkkczseklnsf.supabase.co
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      ADMIN_NOTIFICATION_EMAIL: ${{ secrets.ADMIN_NOTIFICATION_EMAIL }}
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+
+      # The booking test runs against the real Supabase project (same one
+      # used everywhere else in this repo's CI/local workflow, no separate
+      # test environment) — clean up the row it inserts so the real admin
+      # dashboard doesn't accumulate a "Playwright Test Guest" entry on
+      # every run. Runs even if the test above failed, so a failed run
+      # doesn't leave one behind either.
+      - name: Clean up test booking
+        if: always()
+        run: |
+          curl -sf -X DELETE "$NEXT_PUBLIC_SUPABASE_URL/rest/v1/bookings?email=eq.playwright-test@example.com" \
+            -H "apikey: $SUPABASE_SECRET_KEY" \
+            -H "Authorization: Bearer $SUPABASE_SECRET_KEY" || true
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

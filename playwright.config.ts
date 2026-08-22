@@ -7,7 +7,10 @@ export default defineConfig({
   timeout: 45_000,
   fullyParallel: true,
   retries: 0,
-  reporter: "list",
+  // HTML report in CI (uploaded as an artifact on failure — see
+  // .github/workflows/e2e.yml); plain list output is more useful locally
+  // than a report that has to be opened separately.
+  reporter: process.env.CI ? "html" : "list",
   use: {
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
