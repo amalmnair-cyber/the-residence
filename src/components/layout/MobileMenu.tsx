@@ -65,6 +65,7 @@ export default function MobileMenu({ open, onClose, properties, currentSlug }: M
               <Link
                 key={p.slug}
                 href={`/${p.slug}`}
+                scroll={false}
                 tabIndex={open ? 0 : -1}
                 onClick={onClose}
                 className={cn(
