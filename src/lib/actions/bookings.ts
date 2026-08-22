@@ -8,6 +8,7 @@ import { sendBookingNotification } from "@/lib/email/resend";
 import { booking as bookingConfig } from "@/data/booking";
 import { bookingInputSchema } from "@/lib/validation";
 import { nightsBetween, toISODateString } from "@/lib/date";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export interface SubmitBookingResult {
   ok: boolean;
@@ -25,6 +26,12 @@ export async function submitBooking(input: unknown): Promise<SubmitBookingResult
   // tell its submission was rejected.
   if (parsed.data.website) {
     return { ok: true, bookingId: "ignored" };
+  }
+
+  const ip = await getClientIp();
+  const allowed = await checkRateLimit(`booking:${ip}`, 5, 15);
+  if (!allowed) {
+    return { ok: false, message: "Too many requests. Please try again in a few minutes." };
   }
 
   const { checkIn, checkOut, guests, name, email, phone, country, message } = parsed.data;

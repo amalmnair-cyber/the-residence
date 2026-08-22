@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export interface LoginState {
   error?: string;
@@ -13,6 +14,12 @@ export async function login(_prevState: LoginState, formData: FormData): Promise
 
   if (!email || !password) {
     return { error: "Please enter your email and password." };
+  }
+
+  const ip = await getClientIp();
+  const allowed = await checkRateLimit(`login:${ip}`, 5, 15);
+  if (!allowed) {
+    return { error: "Too many attempts. Please try again in a few minutes." };
   }
 
   const supabase = await createClient();
