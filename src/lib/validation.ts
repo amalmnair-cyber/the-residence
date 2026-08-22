@@ -21,3 +21,38 @@ export const bookingInputSchema = z.object({
 });
 
 export type BookingInput = z.infer<typeof bookingInputSchema>;
+
+// slug and theme_key are deliberately not editable here: slug is load-bearing
+// for URLs/bookmarks/canonicals, and theme_key keys into a fixed set of CSS
+// presets in code (see the properties migration) — both are structural, not
+// content, and changing either belongs in code, not an admin form.
+export const propertyUpdateSchema = z.object({
+  name: z.string().trim().min(2).max(100),
+  tagline: z.string().trim().min(2).max(200),
+  location: z.string().trim().min(2).max(100),
+  description: z.string().trim().min(10).max(2000),
+  nightly_rate: z.number().int().min(0).max(1_000_000),
+  cleaning_fee: z.number().int().min(0).max(1_000_000),
+  min_nights: z.number().int().min(1).max(30),
+  max_guests: z.number().int().min(1).max(50),
+  bedrooms: z.number().int().min(0).max(50),
+  bathrooms: z.number().int().min(0).max(50),
+  square_feet: z.number().int().min(0).max(1_000_000),
+  floors: z.number().int().min(1).max(20),
+});
+
+export type PropertyUpdateInput = z.infer<typeof propertyUpdateSchema>;
+
+export const propertyImageUploadSchema = z.object({
+  propertyId: z.string().uuid(),
+  category: z.enum(["hero", "gallery"]),
+  alt: z.string().trim().max(200).optional(),
+});
+
+export const ALLOWED_IMAGE_TYPES = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+} as const;
+
+export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;

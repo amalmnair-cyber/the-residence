@@ -29,6 +29,7 @@ export interface PropertyImage {
   alt: string;
   category: "hero" | "gallery";
   sort_order: number;
+  storage_path: string | null;
 }
 
 const PROPERTY_COLUMNS =
@@ -63,6 +64,18 @@ export const getPropertyBySlug = cache(async (slug: string): Promise<Property | 
   return data;
 });
 
+export async function getPropertyById(id: string): Promise<Property | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("properties")
+    .select(PROPERTY_COLUMNS)
+    .eq("id", id)
+    .single();
+
+  if (error || !data) return null;
+  return data;
+}
+
 export async function getPropertyImages(
   propertyId: string,
   category?: "hero" | "gallery",
@@ -70,7 +83,7 @@ export async function getPropertyImages(
   const supabase = await createClient();
   let query = supabase
     .from("property_images")
-    .select("id, property_id, url, alt, category, sort_order")
+    .select("id, property_id, url, alt, category, sort_order, storage_path")
     .eq("property_id", propertyId)
     .order("sort_order");
 
