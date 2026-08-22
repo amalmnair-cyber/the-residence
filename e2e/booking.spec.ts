@@ -55,6 +55,8 @@ test("homepage has no automated accessibility violations", async ({ page }) => {
 
 test("guest can submit a booking request", async ({ page }) => {
   await page.goto("/");
+  // First-visit-only demo disclaimer blocks interaction until dismissed.
+  await page.getByRole("button", { name: "Understood" }).click();
   await page.getByRole("button", { name: "Book Now" }).first().click();
 
   // Jump a month ahead so the visible grid is never "today" or partly in

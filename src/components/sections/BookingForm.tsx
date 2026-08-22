@@ -295,6 +295,9 @@ export default function BookingForm({
               {formError}
             </p>
           )}
+          <p className="max-w-xs text-center text-[11px] leading-relaxed text-stone">
+            Demo project, not a real booking service — no payment is collected.
+          </p>
         </div>
       </div>
     </form>

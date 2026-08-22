@@ -46,7 +46,7 @@ export default function Footer() {
           <p>
             &copy; {new Date().getFullYear()} {site.brand}. All rights reserved.
           </p>
-          <p>A fictional resort, created for demonstration purposes.</p>
+          <p>A fictional resort, built by Amal as a personal practice project.</p>
         </div>
       </div>
     </footer>

@@ -4,6 +4,7 @@ import { CursorProvider } from "@/context/CursorContext";
 import CustomCursor from "@/components/layout/CustomCursor";
 import ScrollProgress from "@/components/layout/ScrollProgress";
 import Navbar from "@/components/layout/Navbar";
+import DemoDisclaimer from "@/components/layout/DemoDisclaimer";
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
@@ -13,6 +14,7 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
         <ScrollProgress />
         {children}
         <CustomCursor />
+        <DemoDisclaimer />
       </SmoothScroll>
     </CursorProvider>
   );
