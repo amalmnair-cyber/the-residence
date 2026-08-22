@@ -1,0 +1,26 @@
+"use client";
+
+import { useCallback, useSyncExternalStore } from "react";
+
+function getServerSnapshot() {
+  return false;
+}
+
+export function useMediaQuery(query: string) {
+  const subscribe = useCallback(
+    (callback: () => void) => {
+      const mq = window.matchMedia(query);
+      mq.addEventListener("change", callback);
+      return () => mq.removeEventListener("change", callback);
+    },
+    [query],
+  );
+
+  const getSnapshot = useCallback(() => window.matchMedia(query).matches, [query]);
+
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+}
+
+export function useIsDesktopPointer() {
+  return useMediaQuery("(hover: hover) and (pointer: fine)");
+}
