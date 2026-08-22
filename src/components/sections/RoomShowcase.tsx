@@ -2,51 +2,26 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import { motion, useMotionValue, animate, type PanInfo } from "motion/react";
 import { rooms } from "@/data/rooms";
-import { useCursor } from "@/context/CursorContext";
 import ArrowIcon from "../ui/ArrowIcon";
 
 export default function RoomShowcase() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const slideRefs = useRef<Array<HTMLDivElement | null>>([]);
-  const x = useMotionValue(0);
+  const slideRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [active, setActive] = useState(0);
-  const { show, hide } = useCursor();
-
-  function getBounds() {
-    const container = containerRef.current;
-    const track = trackRef.current;
-    if (!container || !track) return { min: 0, max: 0 };
-    return { min: -(track.scrollWidth - container.clientWidth), max: 0 };
-  }
+  const [offset, setOffset] = useState(0);
 
   function goTo(index: number) {
     const clamped = Math.max(0, Math.min(rooms.length - 1, index));
     const slide = slideRefs.current[clamped];
-    if (!slide) return;
-    const { min, max } = getBounds();
-    const target = Math.max(min, Math.min(max, -slide.offsetLeft));
-    animate(x, target, { type: "spring", stiffness: 200, damping: 30, mass: 0.6 });
+    const container = containerRef.current;
+    if (!slide || !container) return;
+
+    const maxOffset = -(
+      slide.parentElement!.scrollWidth - container.clientWidth
+    );
+    setOffset(Math.max(maxOffset, Math.min(0, -slide.offsetLeft)));
     setActive(clamped);
-  }
-
-  function handleDragEnd(_event: unknown, info: PanInfo) {
-    const { min, max } = getBounds();
-    const projected = Math.max(min, Math.min(max, x.get() + info.velocity.x * 0.22));
-
-    let nearestIndex = 0;
-    let nearestDist = Infinity;
-    slideRefs.current.forEach((slide, i) => {
-      if (!slide) return;
-      const dist = Math.abs(-slide.offsetLeft - projected);
-      if (dist < nearestDist) {
-        nearestDist = dist;
-        nearestIndex = i;
-      }
-    });
-    goTo(nearestIndex);
   }
 
   return (
@@ -67,15 +42,17 @@ export default function RoomShowcase() {
             <div className="flex gap-2">
               <button
                 onClick={() => goTo(active - 1)}
+                disabled={active === 0}
                 aria-label="Previous room"
-                className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-line text-ink transition-colors hover:border-ink"
+                className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-line text-ink transition-colors hover:border-ink disabled:cursor-not-allowed disabled:opacity-30"
               >
                 <ArrowIcon direction="left" />
               </button>
               <button
                 onClick={() => goTo(active + 1)}
+                disabled={active === rooms.length - 1}
                 aria-label="Next room"
-                className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-line text-ink transition-colors hover:border-ink"
+                className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-line text-ink transition-colors hover:border-ink disabled:cursor-not-allowed disabled:opacity-30"
               >
                 <ArrowIcon direction="right" />
               </button>
@@ -85,34 +62,27 @@ export default function RoomShowcase() {
       </div>
 
       <div ref={containerRef} className="pl-6 sm:pl-10">
-        <motion.div
-          ref={trackRef}
-          className="flex cursor-grab gap-5 active:cursor-grabbing"
-          style={{ x }}
-          drag="x"
-          dragConstraints={containerRef}
-          dragElastic={0.15}
-          dragMomentum={false}
-          dragTransition={{ power: 0.2, timeConstant: 150 }}
-          onDragEnd={handleDragEnd}
+        <div
+          className="flex gap-5 transition-transform duration-500 ease-out"
+          style={{ transform: `translateX(${offset}px)` }}
         >
           {rooms.map((room, i) => (
-            <div
+            <button
               key={room.id}
+              type="button"
               ref={(el) => {
                 slideRefs.current[i] = el;
               }}
-              onMouseEnter={() => show("Drag")}
-              onMouseLeave={hide}
-              className="relative aspect-3/4 w-[78vw] flex-none overflow-hidden sm:w-[46vw] lg:w-[32vw]"
+              onClick={() => goTo(i)}
+              aria-label={`View ${room.title}`}
+              className="relative aspect-3/4 w-[78vw] flex-none cursor-pointer overflow-hidden text-left sm:w-[46vw] lg:w-[32vw]"
             >
               <Image
                 src={room.image}
                 alt={room.title}
                 fill
-                draggable={false}
                 sizes="(min-width: 1024px) 32vw, (min-width: 640px) 46vw, 78vw"
-                className="pointer-events-none object-cover"
+                className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-ink/75 via-ink/0 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6">
@@ -120,10 +90,10 @@ export default function RoomShowcase() {
                 <p className="mt-1 font-display text-2xl text-bone">{room.title}</p>
                 <p className="mt-2 max-w-xs text-sm text-bone/70">{room.description}</p>
               </div>
-            </div>
+            </button>
           ))}
           <div className="w-1 flex-none sm:w-4" />
-        </motion.div>
+        </div>
       </div>
     </section>
   );

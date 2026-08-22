@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-test("homepage has no automated accessibility violations", async ({ page }) => {
-  await page.goto("/");
+test("property page has no automated accessibility violations", async ({ page }) => {
+  await page.goto("/the-elmstead");
 
   // Most sections use GSAP ScrollTrigger to reveal at opacity: 0 -> 1 as
   // they enter the viewport. Scanning immediately after load catches
@@ -54,8 +54,8 @@ test("homepage has no automated accessibility violations", async ({ page }) => {
 });
 
 test("guest can submit a booking request", async ({ page }) => {
-  await page.goto("/");
-  // First-visit-only demo disclaimer blocks interaction until dismissed.
+  await page.goto("/the-elmstead");
+  // Demo disclaimer shows on every visit and blocks interaction until dismissed.
   await page.getByRole("button", { name: "Understood" }).click();
   await page.getByRole("button", { name: "Book Now" }).first().click();
 

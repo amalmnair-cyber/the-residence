@@ -20,6 +20,29 @@
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* The Kiln House — a cooler, moodier palette (slate/copper vs. Elmstead's
+   warm cream/brass), reusing the exact same token names so every existing
+   component re-themes automatically with zero changes of its own. The
+   accent (--color-brass) is a genuinely different hue here, not just a
+   darker version — and unlike Elmstead's, it actually passes WCAG AA
+   contrast (4.6:1) against this background, verified by calculation. */
+[data-theme="kiln"] {
+  --color-bone: #e6e3dd;
+  --color-bone-2: #dcd8d0;
+  --color-paper: #efece7;
+  --color-ink: #15171a;
+  --color-ink-2: #1d2023;
+  --color-ink-3: #262a2e;
+  --color-stone: #63676b;
+  --color-stone-light: #9a9d9f;
+  --color-brass: #8f5540;
+  --color-brass-light: #b8836a;
+  --color-line: rgba(21, 23, 26, 0.12);
+  --color-line-soft: rgba(21, 23, 26, 0.07);
+  --color-line-dark: rgba(230, 227, 221, 0.16);
+  --color-line-dark-soft: rgba(230, 227, 221, 0.08);
+}
+
 @theme inline {
   --color-bone: var(--color-bone);
   --color-bone-2: var(--color-bone-2);

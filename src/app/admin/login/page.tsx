@@ -2,6 +2,7 @@
 
 import { Suspense, useActionState, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { login, type LoginState } from "@/lib/actions/auth";
 import FormField from "@/components/ui/FormField";
 import MagneticButton from "@/components/ui/MagneticButton";
@@ -71,12 +72,12 @@ export default function AdminLoginPage() {
           {pending ? "Signing in" : "Sign In"}
         </MagneticButton>
 
-        <a
+        <Link
           href="/admin/forgot-password"
           className="block text-center text-[12px] uppercase tracking-[0.1em] text-stone transition-colors hover:text-ink"
         >
           Forgot password?
-        </a>
+        </Link>
       </form>
     </div>
   );

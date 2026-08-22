@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import Link from "next/link";
 import {
   requestPasswordReset,
   resetPasswordWithCode,
@@ -43,12 +44,12 @@ function RequestCodeStage({ onSent }: { onSent: (email: string) => void }) {
         <MagneticButton type="submit" disabled={pending} className="w-full">
           {pending ? "Sending" : "Send Code"}
         </MagneticButton>
-        <a
+        <Link
           href="/admin/login"
           className="block text-center text-[12px] uppercase tracking-[0.1em] text-stone transition-colors hover:text-ink"
         >
           Back to sign in
-        </a>
+        </Link>
       </form>
     </>
   );
