@@ -16,7 +16,7 @@ const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' data: https://images.unsplash.com https://images.pexels.com https://${supabaseHostname}`,
+  `img-src 'self' data: https://images.unsplash.com https://${supabaseHostname}`,
   "font-src 'self'",
   "connect-src 'self'",
   "object-src 'none'",
@@ -32,11 +32,6 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "images.unsplash.com",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "images.pexels.com",
         pathname: "/**",
       },
       {
