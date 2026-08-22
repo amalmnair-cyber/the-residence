@@ -134,11 +134,12 @@ export default function BookingForm({
         </p>
         <p className="mt-1 text-[15px] text-ink">
           Estimated total {booking.currency}
-          {total.toLocaleString("en-GB")}
+          {total.toLocaleString("en-GB")} · payable on arrival
         </p>
         <p className="mt-6 max-w-sm text-[13px] leading-relaxed text-stone">
-          A member of our reservations team will confirm availability and
-          payment details with you directly.
+          A member of our reservations team will confirm availability
+          shortly. You&apos;ll receive an email confirming this request now,
+          and a second once it&apos;s reviewed.
         </p>
       </div>
     );
