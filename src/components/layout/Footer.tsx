@@ -14,7 +14,7 @@ export default function Footer() {
             </p>
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-[0.16em] text-bone/40">
+            <p className="text-[11px] uppercase tracking-[0.16em] text-bone/70">
               Navigate
             </p>
             <ul className="mt-5 space-y-3">
@@ -31,7 +31,7 @@ export default function Footer() {
             </ul>
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-[0.16em] text-bone/40">
+            <p className="text-[11px] uppercase tracking-[0.16em] text-bone/70">
               Reservations
             </p>
             <div className="mt-5 space-y-3 text-sm text-bone/70">
@@ -42,7 +42,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-20 flex flex-col gap-4 border-t border-bone/10 pt-8 text-xs text-bone/40 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-20 flex flex-col gap-4 border-t border-bone/10 pt-8 text-xs text-bone/70 sm:flex-row sm:items-center sm:justify-between">
           <p>
             &copy; {new Date().getFullYear()} {site.brand}. All rights reserved.
           </p>

@@ -113,7 +113,7 @@ export default function Calendar({
 
       <div className="mt-5 grid grid-cols-7 gap-y-1 text-center">
         {WEEKDAY_LABELS.map((d) => (
-          <span key={d} className="text-[10px] uppercase tracking-[0.1em] text-stone-light">
+          <span key={d} className="text-[10px] uppercase tracking-[0.1em] text-stone">
             {d}
           </span>
         ))}

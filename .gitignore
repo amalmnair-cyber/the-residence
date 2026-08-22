@@ -40,6 +40,11 @@ yarn-error.log*
 # supabase
 supabase/.temp
 
+# testing
+/test-results
+/playwright-report
+/blob-report
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -91,7 +91,7 @@ export default function Lightbox({ images, index, onClose, onNavigate }: Lightbo
         </div>
       )}
 
-      <p className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[12px] tracking-[0.1em] text-bone/45">
+      <p className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[12px] tracking-[0.1em] text-bone/55">
         {index !== null ? index + 1 : 0} / {images.length}
       </p>
     </div>

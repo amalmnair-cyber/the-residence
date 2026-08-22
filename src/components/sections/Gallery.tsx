@@ -79,7 +79,7 @@ export default function Gallery() {
         >
           A walk through
         </RevealText>
-        <p className="mt-5 text-[11px] uppercase tracking-[0.18em] text-bone/45">
+        <p className="mt-5 text-[11px] uppercase tracking-[0.18em] text-bone/55">
           Scroll to continue
         </p>
       </div>
