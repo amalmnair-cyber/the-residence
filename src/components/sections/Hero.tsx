@@ -103,7 +103,7 @@ export default function Hero() {
             src={images.hero}
             alt={`${site.propertyName}, a contemporary glass and concrete house in Hampstead, London, illuminated at dusk`}
             fill
-            preload
+            priority
             sizes="100vw"
             className="object-cover"
           />
