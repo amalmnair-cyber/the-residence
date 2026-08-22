@@ -11,9 +11,11 @@ import type { Weather } from "@/lib/weather";
 export default function Location({
   location,
   weather,
+  coordinates,
 }: {
   location: RichContent["location"];
   weather: Weather | null;
+  coordinates?: { lat: number; lon: number };
 }) {
   const { heading, blurb, places: nearbyPlaces, images: locationImages } = location;
   const sectionRef = useRef<HTMLElement>(null);
@@ -72,6 +74,17 @@ export default function Location({
                 </li>
               ))}
             </ul>
+
+            {coordinates && (
+              <div className="mt-8 overflow-hidden rounded-md border border-line-dark">
+                <iframe
+                  title={`Map showing ${heading[0]}, ${heading[1]}`}
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${coordinates.lon - 0.015}%2C${coordinates.lat - 0.01}%2C${coordinates.lon + 0.015}%2C${coordinates.lat + 0.01}&marker=${coordinates.lat}%2C${coordinates.lon}&layer=mapnik`}
+                  className="h-56 w-full grayscale-[15%] contrast-[1.05] invert-[0.92] hue-rotate-180"
+                  loading="lazy"
+                />
+              </div>
+            )}
           </div>
 
           <div className="relative lg:col-span-7">

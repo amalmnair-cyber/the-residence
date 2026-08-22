@@ -118,7 +118,11 @@ export default async function PropertyPage({
             rooms={content.floorPlan.rooms}
             bounds={content.floorPlan.bounds}
           />
-          <Location location={{ ...content.location, heading: locationHeading }} weather={weather} />
+          <Location
+            location={{ ...content.location, heading: locationHeading }}
+            weather={weather}
+            coordinates={coordinates}
+          />
           <Lifestyle propertyName={property.name} lifestyle={content.lifestyle} />
         </>
       )}

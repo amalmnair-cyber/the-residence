@@ -14,11 +14,16 @@ const supabaseHostname = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname
 // inline scripts. Every other directive still fully applies.
 const contentSecurityPolicy = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  // va.vercel-scripts.com: Vercel Analytics' script only loads from here in
+  // local dev (isDevelopment() check in the package) — production uses the
+  // same-origin /_vercel/insights/script.js path instead, so this entry is
+  // simply unused in production, not a real allowance there.
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval' https://va.vercel-scripts.com" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: https://images.unsplash.com https://${supabaseHostname}`,
   "font-src 'self'",
   "connect-src 'self'",
+  "frame-src https://www.openstreetmap.org",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
