@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { floorPlanRooms, floorPlanBounds } from "@/data/floorplan";
 import { useCursor } from "@/context/CursorContext";
+import { site } from "@/data/content";
 import RevealText from "../ui/RevealText";
 
 export default function FloorPlan() {
@@ -31,7 +32,7 @@ export default function FloorPlan() {
             viewBox="0 0 1000 640"
             className="w-full select-none"
             role="img"
-            aria-label="Ground floor plan of The Residence"
+            aria-label={`Ground floor plan of ${site.propertyName}`}
           >
             <rect
               x={floorPlanBounds.x}

@@ -28,13 +28,13 @@ export default function RoomShowcase() {
     if (!slide) return;
     const { min, max } = getBounds();
     const target = Math.max(min, Math.min(max, -slide.offsetLeft));
-    animate(x, target, { type: "spring", stiffness: 260, damping: 32 });
+    animate(x, target, { type: "spring", stiffness: 200, damping: 30, mass: 0.6 });
     setActive(clamped);
   }
 
   function handleDragEnd(_event: unknown, info: PanInfo) {
     const { min, max } = getBounds();
-    const projected = Math.max(min, Math.min(max, x.get() + info.velocity.x * 0.15));
+    const projected = Math.max(min, Math.min(max, x.get() + info.velocity.x * 0.22));
 
     let nearestIndex = 0;
     let nearestDist = Infinity;
@@ -91,7 +91,9 @@ export default function RoomShowcase() {
           style={{ x }}
           drag="x"
           dragConstraints={containerRef}
-          dragElastic={0.08}
+          dragElastic={0.15}
+          dragMomentum={false}
+          dragTransition={{ power: 0.2, timeConstant: 150 }}
           onDragEnd={handleDragEnd}
         >
           {rooms.map((room, i) => (

@@ -1,8 +1,8 @@
 import { unsplash } from "@/lib/unsplash";
 
 export const site = {
-  name: "The Residence",
-  architect: "Atelier North",
+  brand: "AAAM Residency",
+  propertyName: "The Elmstead",
   location: "Hampstead, London",
   tagline: "Designed for extraordinary living.",
 };
@@ -37,23 +37,23 @@ export const architectureFeatures = [
   },
   {
     title: "Privacy",
-    copy: "Set back behind mature planting on a quiet, gated road, the Residence is entirely private without a single visible boundary wall.",
+    copy: "Set back behind mature planting on a quiet, gated road, The Elmstead is entirely private without a single visible boundary wall.",
   },
   {
     title: "Contemporary Design",
-    copy: "Atelier North's language of quiet geometry, applied to a family house rather than the galleries the practice is best known for.",
+    copy: "A language of quiet geometry that favours restraint over spectacle, inside and out.",
   },
 ];
 
 export const introCopy = {
   heading: "A New Standard of Living",
   paragraphs: [
-    "The Residence is a private architectural retreat designed around light, proportion and natural materials.",
-    "Set within a quiet, gated plot moments from Hampstead Heath, it was conceived by Atelier North as a single continuous gesture — from the entrance court through to the garden beyond.",
+    "The Elmstead is a private architectural retreat, available for exclusive whole-house stays, designed around light, proportion and natural materials.",
+    "Set within a quiet, gated plot moments from Hampstead Heath, it was conceived as a single continuous gesture — from the entrance court through to the garden beyond, reserved entirely for you and your guests.",
   ],
 };
 
 export const lifestyleCopy = {
   lines: ["Designed not simply to be seen.", "Designed to be lived."],
-  body: "Every room at the Residence was drawn around the way a family actually moves through a house — toward the light, toward the garden, and toward each other.",
+  body: "Every room at The Elmstead was drawn around the way a family actually moves through a house — toward the light, toward the garden, and toward each other.",
 };

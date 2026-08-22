@@ -9,7 +9,7 @@ import Materials from "@/components/sections/Materials";
 import Gallery from "@/components/sections/Gallery";
 import Location from "@/components/sections/Location";
 import Lifestyle from "@/components/sections/Lifestyle";
-import Enquiry from "@/components/sections/Enquiry";
+import Booking from "@/components/sections/Booking";
 import Footer from "@/components/layout/Footer";
 
 export default function Home() {
@@ -26,7 +26,7 @@ export default function Home() {
       <Gallery />
       <Location />
       <Lifestyle />
-      <Enquiry />
+      <Booking />
       <Footer />
     </main>
   );

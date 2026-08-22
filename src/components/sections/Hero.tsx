@@ -101,7 +101,7 @@ export default function Hero() {
           <Image
             ref={imgRef}
             src={images.hero}
-            alt="The Residence, a contemporary glass and concrete house in Hampstead, London, illuminated at dusk"
+            alt={`${site.propertyName}, a contemporary glass and concrete house in Hampstead, London, illuminated at dusk`}
             fill
             preload
             sizes="100vw"
@@ -119,7 +119,7 @@ export default function Hero() {
           ref={titleRef}
           className="font-display text-[16vw] leading-[0.92] text-bone sm:text-[12vw] lg:text-[8.4vw]"
         >
-          The Residence
+          {site.propertyName}
         </h1>
         <p className="hero-fade mt-7 max-w-md text-[15px] text-bone/80 sm:text-base">
           {site.tagline}

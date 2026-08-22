@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLenis } from "lenis/react";
 import { navLinks } from "@/data/navigation";
+import { site } from "@/data/content";
 import { useScrollTo } from "@/hooks/useScrollTo";
 import { cn } from "@/lib/cn";
 import MagneticButton from "../ui/MagneticButton";
@@ -36,7 +37,7 @@ export default function Navbar() {
               scrolled ? "text-ink" : "text-bone",
             )}
           >
-            Atelier North
+            {site.brand}
           </a>
 
           <nav className="hidden items-center gap-8 lg:flex">
@@ -62,9 +63,9 @@ export default function Navbar() {
             <MagneticButton
               variant={scrolled ? "solid" : "outline-light"}
               className="px-6 py-2.5 text-[11px]"
-              onClick={() => scrollToId("#enquiry")}
+              onClick={() => scrollToId("#booking")}
             >
-              Private Viewing
+              Book Now
             </MagneticButton>
           </div>
 

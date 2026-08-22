@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import RevealText from "../ui/RevealText";
-import { images, introCopy } from "@/data/content";
+import { images, introCopy, site } from "@/data/content";
 
 export default function Introduction() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -73,15 +73,15 @@ export default function Introduction() {
           >
             <Image
               src={images.introduction}
-              alt="The Residence exterior at twilight, framed by mature landscaping"
+              alt={`${site.propertyName} exterior at twilight, framed by mature landscaping`}
               fill
               sizes="(min-width: 1024px) 40vw, 90vw"
               className="object-cover"
             />
           </div>
           <div className="absolute -bottom-7 -left-7 hidden h-24 w-24 flex-col items-center justify-center rounded-full bg-ink text-center text-[10px] uppercase leading-tight tracking-[0.1em] text-bone sm:flex">
-            <span>Atelier</span>
-            <span>North</span>
+            <span>AAAM</span>
+            <span>Residency</span>
           </div>
         </div>
       </div>

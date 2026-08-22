@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import RevealText from "../ui/RevealText";
-import { images, architectureFeatures } from "@/data/content";
+import { images, architectureFeatures, site } from "@/data/content";
 
 export default function Architecture() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -60,7 +60,7 @@ export default function Architecture() {
         <div ref={mainImgRef} className="absolute inset-[-6%]">
           <Image
             src={images.architectureMain}
-            alt="Board-formed concrete and timber facade detail of The Residence"
+            alt={`Board-formed concrete and timber facade detail of ${site.propertyName}`}
             fill
             sizes="100vw"
             className="object-cover"

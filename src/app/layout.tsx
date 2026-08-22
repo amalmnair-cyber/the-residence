@@ -1,12 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
-import SmoothScroll from "@/components/layout/SmoothScroll";
-import { CursorProvider } from "@/context/CursorContext";
-import CustomCursor from "@/components/layout/CustomCursor";
-import ScrollProgress from "@/components/layout/ScrollProgress";
-import Navbar from "@/components/layout/Navbar";
-import { images } from "@/data/content";
+import { site, images } from "@/data/content";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -21,20 +16,21 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "The Residence — Hampstead, London | Atelier North",
-  description:
-    "The Residence is a private architectural retreat in Hampstead, London, designed by Atelier North around light, proportion and natural materials.",
+  title: `${site.propertyName} — ${site.location} | ${site.brand}`,
+  description: `${site.propertyName} is a private architectural retreat in ${site.location}, available for exclusive whole-house stays with ${site.brand}. Designed around light, proportion and natural materials.`,
   keywords: [
-    "The Residence",
-    "Atelier North",
+    site.propertyName,
+    site.brand,
     "Hampstead",
     "London",
     "luxury property",
+    "luxury villa rental",
+    "book a stay",
     "architecture",
   ],
   openGraph: {
-    title: "The Residence — Hampstead, London",
-    description: "Designed for extraordinary living.",
+    title: `${site.propertyName} — ${site.location}`,
+    description: `${site.tagline} Available to book.`,
     type: "website",
     images: [images.hero],
   },
@@ -47,16 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       data-scroll-behavior="smooth"
       className={`${playfair.variable} ${inter.variable} antialiased`}
     >
-      <body className="bg-bone text-ink">
-        <CursorProvider>
-          <SmoothScroll>
-            <Navbar />
-            <ScrollProgress />
-            {children}
-            <CustomCursor />
-          </SmoothScroll>
-        </CursorProvider>
-      </body>
+      <body className="bg-bone text-ink">{children}</body>
     </html>
   );
 }

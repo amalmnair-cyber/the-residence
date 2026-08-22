@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { navLinks } from "@/data/navigation";
+import { site } from "@/data/content";
 import { useScrollTo } from "@/hooks/useScrollTo";
 import { cn } from "@/lib/cn";
 import MagneticButton from "../ui/MagneticButton";
@@ -36,7 +37,7 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
     >
       <div className="flex items-center justify-between px-6 py-6">
         <span className="font-display text-sm uppercase tracking-[0.2em]">
-          Atelier North
+          {site.brand}
         </span>
         <button
           onClick={onClose}
@@ -79,10 +80,10 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
         <MagneticButton
           variant="outline-light"
           className="w-full"
-          onClick={() => handleClick("#enquiry")}
+          onClick={() => handleClick("#booking")}
           tabIndex={open ? 0 : -1}
         >
-          Private Viewing
+          Book Now
         </MagneticButton>
       </div>
     </div>
