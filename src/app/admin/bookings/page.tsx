@@ -5,6 +5,7 @@ import { logout } from "@/lib/actions/auth";
 import { formatDate, parseISODate } from "@/lib/date";
 import { cn } from "@/lib/cn";
 import StatusControl from "@/components/admin/StatusControl";
+import DeleteBookingButton from "@/components/admin/DeleteBookingButton";
 
 interface PageProps {
   searchParams: Promise<{ status?: string }>;
@@ -112,13 +113,16 @@ export default async function AdminBookingsPage({ searchParams }: PageProps) {
                     <span className="text-ink">Message:</span> {b.message}
                   </p>
                 )}
-                <p className="text-stone-light">
+                <p className="text-stone">
                   Submitted {formatDate(new Date(b.created_at))}
                 </p>
               </div>
-              <div>
-                <p className="mb-2 text-[11px] uppercase tracking-[0.1em] text-stone">Status</p>
-                <StatusControl bookingId={b.id} status={b.status} />
+              <div className="flex flex-col justify-between">
+                <div>
+                  <p className="mb-2 text-[11px] uppercase tracking-[0.1em] text-stone">Status</p>
+                  <StatusControl bookingId={b.id} status={b.status} />
+                </div>
+                <DeleteBookingButton bookingId={b.id} guestName={b.name} />
               </div>
             </div>
           </details>

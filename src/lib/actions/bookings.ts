@@ -164,3 +164,21 @@ export async function updateBookingStatus(
   revalidatePath("/");
   return { ok: true };
 }
+
+export async function deleteBooking(bookingId: string): Promise<BookingStatusResult> {
+  await requireAdmin();
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("bookings").delete().eq("id", bookingId);
+
+  if (error) {
+    console.error("booking delete failed", error);
+    return { ok: false, message: "Could not delete this booking. Please try again." };
+  }
+
+  // A deleted booking might have been the one blocking these dates on the
+  // public calendar (if it was confirmed) — free them up immediately.
+  revalidatePath("/admin/bookings");
+  revalidatePath("/");
+  return { ok: true };
+}
