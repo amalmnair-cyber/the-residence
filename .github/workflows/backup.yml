@@ -1,0 +1,48 @@
+name: Database Backup
+
+# Supabase's free tier doesn't include point-in-time recovery, so this is
+# the safety net: a daily snapshot of every table that actually matters
+# (marketing content + real guest booking data), stored as a GitHub Actions
+# artifact rather than committed to the repo — bookings contain guest PII
+# (name, email, phone), which has no business sitting in git history even
+# on a private repo.
+#
+# To restore: open this workflow's run history, download the artifact for
+# the date you need, and re-insert the JSON rows via the Supabase SQL
+# editor or REST API.
+#
+# Requires one repo secret: SUPABASE_SECRET_KEY (same value as
+# SUPABASE_SECRET_KEY in .env.local — Settings → Secrets and variables →
+# Actions → New repository secret). The project URL below is not secret —
+# it's the same NEXT_PUBLIC_SUPABASE_URL already shipped in every page's
+# client bundle.
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump tables
+        env:
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: |
+          set -euo pipefail
+          SUPABASE_URL="https://llzhuczmhkkczseklnsf.supabase.co"
+          mkdir -p backup
+          for table in properties property_images bookings admin_users; do
+            curl -sf "$SUPABASE_URL/rest/v1/$table?select=*" \
+              -H "apikey: $SUPABASE_SECRET_KEY" \
+              -H "Authorization: Bearer $SUPABASE_SECRET_KEY" \
+              -o "backup/${table}.json"
+          done
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_id }}
+          path: backup/
+          retention-days: 90
