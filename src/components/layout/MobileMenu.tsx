@@ -1,18 +1,26 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { navLinks } from "@/data/navigation";
 import { site } from "@/data/content";
 import { useScrollTo } from "@/hooks/useScrollTo";
 import { cn } from "@/lib/cn";
 import MagneticButton from "../ui/MagneticButton";
 
+interface NavbarProperty {
+  slug: string;
+  name: string;
+}
+
 interface MobileMenuProps {
   open: boolean;
   onClose: () => void;
+  properties: NavbarProperty[];
+  currentSlug: string;
 }
 
-export default function MobileMenu({ open, onClose }: MobileMenuProps) {
+export default function MobileMenu({ open, onClose, properties, currentSlug }: MobileMenuProps) {
   const { scrollToId } = useScrollTo(-72);
 
   useEffect(() => {
@@ -48,6 +56,30 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
           Close
         </button>
       </div>
+
+      {properties.length > 1 && (
+        <div className="flex gap-2 px-8">
+          {properties.map((p) => {
+            const active = p.slug === currentSlug;
+            return (
+              <Link
+                key={p.slug}
+                href={`/${p.slug}`}
+                tabIndex={open ? 0 : -1}
+                onClick={onClose}
+                className={cn(
+                  "rounded-full border px-4 py-2 text-[11px] uppercase tracking-[0.08em] transition-colors",
+                  active
+                    ? "border-bone bg-bone text-ink"
+                    : "border-bone/25 text-bone/70 hover:border-bone/60",
+                )}
+              >
+                {p.name.replace(/^The /, "")}
+              </Link>
+            );
+          })}
+        </div>
+      )}
 
       <nav className="flex flex-1 flex-col justify-center gap-1 px-8">
         {navLinks.map((link, i) => (

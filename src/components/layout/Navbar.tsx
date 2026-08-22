@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useLenis } from "lenis/react";
 import { navLinks } from "@/data/navigation";
 import { site } from "@/data/content";
@@ -9,7 +10,18 @@ import { cn } from "@/lib/cn";
 import MagneticButton from "../ui/MagneticButton";
 import MobileMenu from "./MobileMenu";
 
-export default function Navbar() {
+interface NavbarProperty {
+  slug: string;
+  name: string;
+}
+
+export default function Navbar({
+  properties,
+  currentSlug,
+}: {
+  properties: NavbarProperty[];
+  currentSlug: string;
+}) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { handleAnchorClick, scrollToId } = useScrollTo(-88);
@@ -39,6 +51,37 @@ export default function Navbar() {
           >
             {site.brand}
           </a>
+
+          {properties.length > 1 && (
+            <div
+              className={cn(
+                "hidden items-center rounded-full border p-0.5 text-[10px] uppercase tracking-[0.08em] transition-colors duration-500 md:flex",
+                scrolled ? "border-line" : "border-bone/30",
+              )}
+            >
+              {properties.map((p) => {
+                const active = p.slug === currentSlug;
+                return (
+                  <Link
+                    key={p.slug}
+                    href={`/${p.slug}`}
+                    className={cn(
+                      "rounded-full px-3 py-1.5 transition-colors duration-300",
+                      active
+                        ? scrolled
+                          ? "bg-ink text-bone"
+                          : "bg-bone text-ink"
+                        : scrolled
+                          ? "text-ink/60 hover:text-ink"
+                          : "text-bone/70 hover:text-bone",
+                    )}
+                  >
+                    {p.name.replace(/^The /, "")}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
 
           <nav className="hidden items-center gap-8 lg:flex">
             {navLinks.map((link) => (
@@ -90,7 +133,12 @@ export default function Navbar() {
         </div>
       </header>
 
-      <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <MobileMenu
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        properties={properties}
+        currentSlug={currentSlug}
+      />
     </>
   );
 }

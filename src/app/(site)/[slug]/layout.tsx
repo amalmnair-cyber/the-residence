@@ -5,7 +5,7 @@ import { CursorProvider } from "@/context/CursorContext";
 import CustomCursor from "@/components/layout/CustomCursor";
 import ScrollProgress from "@/components/layout/ScrollProgress";
 import Navbar from "@/components/layout/Navbar";
-import { getPropertyBySlug } from "@/lib/queries/properties";
+import { getProperties, getPropertyBySlug } from "@/lib/queries/properties";
 
 export default async function PropertyLayout({
   children,
@@ -15,14 +15,20 @@ export default async function PropertyLayout({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const property = await getPropertyBySlug(slug);
+  const [property, properties] = await Promise.all([
+    getPropertyBySlug(slug),
+    getProperties(),
+  ]);
   if (!property) notFound();
 
   return (
     <div data-theme={property.theme_key}>
       <CursorProvider>
         <SmoothScroll>
-          <Navbar />
+          <Navbar
+            properties={properties.map((p) => ({ slug: p.slug, name: p.name }))}
+            currentSlug={slug}
+          />
           <ScrollProgress />
           {children}
           <CustomCursor />
