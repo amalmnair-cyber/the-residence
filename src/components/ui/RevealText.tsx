@@ -70,8 +70,16 @@ export default function RevealText({
 
   const Tag = as as "div";
 
+  // SplitText (GSAP) sets aria-label on this element once it splits the
+  // text into visual word/char/line spans, so a screen reader gets the real
+  // text instead of fragments. role="text" is required for that to be valid
+  // on tags like <p> whose implicit role otherwise prohibits a naming
+  // attribute — but it's invalid ON headings, which already have a role
+  // that supports naming natively.
+  const isHeading = typeof as === "string" && /^h[1-6]$/.test(as);
+
   return (
-    <Tag ref={ref} className={className}>
+    <Tag ref={ref} role={isHeading ? undefined : "text"} className={className}>
       {children}
     </Tag>
   );
