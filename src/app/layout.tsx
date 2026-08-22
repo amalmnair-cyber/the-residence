@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { site } from "@/data/content";
 
@@ -45,7 +46,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       data-scroll-behavior="smooth"
       className={`${playfair.variable} ${inter.variable} antialiased`}
     >
-      <body className="bg-bone text-ink">{children}</body>
+      <body className="bg-bone text-ink">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
