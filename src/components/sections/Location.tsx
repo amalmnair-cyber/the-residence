@@ -6,8 +6,15 @@ import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import RevealText from "../ui/RevealText";
 import type { RichContent } from "@/data/property-content";
+import type { Weather } from "@/lib/weather";
 
-export default function Location({ location }: { location: RichContent["location"] }) {
+export default function Location({
+  location,
+  weather,
+}: {
+  location: RichContent["location"];
+  weather: Weather | null;
+}) {
   const { heading, blurb, places: nearbyPlaces, images: locationImages } = location;
   const sectionRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
@@ -44,6 +51,11 @@ export default function Location({ location }: { location: RichContent["location
               <br />
               {heading[1]}
             </h2>
+            {weather && (
+              <p className="mt-4 text-sm text-bone/70">
+                Currently {weather.temperatureC}°C, {weather.description.toLowerCase()}
+              </p>
+            )}
             <p className="mt-8 max-w-sm text-[15px] leading-relaxed text-bone/65">{blurb}</p>
 
             <ul

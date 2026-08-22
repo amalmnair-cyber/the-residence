@@ -14,6 +14,8 @@ import { getPropertyBySlug, getPropertyImages } from "@/lib/queries/properties";
 import { unsplash } from "@/lib/unsplash";
 import { site } from "@/data/content";
 import { richContentBySlug } from "@/data/property-content";
+import { propertyCoordinates } from "@/data/coordinates";
+import { getCurrentWeather } from "@/lib/weather";
 
 export async function generateMetadata({
   params,
@@ -45,9 +47,11 @@ export default async function PropertyPage({
   const property = await getPropertyBySlug(slug);
   if (!property) notFound();
 
-  const [heroImages, galleryImages] = await Promise.all([
+  const coordinates = propertyCoordinates[slug];
+  const [heroImages, galleryImages, weather] = await Promise.all([
     getPropertyImages(property.id, "hero"),
     getPropertyImages(property.id, "gallery"),
+    coordinates ? getCurrentWeather(coordinates.lat, coordinates.lon) : Promise.resolve(null),
   ]);
 
   // Falls back to the original hardcoded Elmstead photo until real images
@@ -114,7 +118,7 @@ export default async function PropertyPage({
             rooms={content.floorPlan.rooms}
             bounds={content.floorPlan.bounds}
           />
-          <Location location={{ ...content.location, heading: locationHeading }} />
+          <Location location={{ ...content.location, heading: locationHeading }} weather={weather} />
           <Lifestyle propertyName={property.name} lifestyle={content.lifestyle} />
         </>
       )}
