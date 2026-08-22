@@ -28,7 +28,12 @@ export async function proxy(request: NextRequest) {
   const isLoggedIn = !!data?.claims;
   const path = request.nextUrl.pathname;
 
-  if (path.startsWith("/admin") && path !== "/admin/login" && !isLoggedIn) {
+  // forgot-password must be reachable while logged out (that's the point).
+  // reset-password isn't listed here: it needs isLoggedIn, which the
+  // recovery-token link from /auth/confirm establishes before arriving.
+  const publicAdminPaths = ["/admin/login", "/admin/forgot-password"];
+
+  if (path.startsWith("/admin") && !publicAdminPaths.includes(path) && !isLoggedIn) {
     return NextResponse.redirect(new URL("/admin/login", request.url));
   }
   if (path === "/admin/login" && isLoggedIn) {
