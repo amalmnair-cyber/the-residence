@@ -200,6 +200,7 @@ No single layer here is doing everything — that's deliberate. A bug in `requir
 
 ## Glossary
 
+- **CI (Continuous Integration)** — automatically running checks (tests, builds) every time code changes, instead of relying on someone to remember to run them by hand. `.github/workflows/e2e.yml` is this project's CI: it runs the full test suite on every push, so a broken change shows up as a red ❌ on GitHub within about a minute, not whenever someone next happens to test manually.
 - **RLS (Row Level Security)** — a Postgres feature where the database itself decides, per row, whether the current user is allowed to see or modify it. Enabled per-table; enforced even if the application code has a bug.
 - **Server Component** — a React component that renders on the server and never ships its code to the browser. The App Router default.
 - **Client Component** — a React component marked `"use client"`, which does ship to the browser, because it needs interactivity `useState`/`useEffect`/event handlers provide.
