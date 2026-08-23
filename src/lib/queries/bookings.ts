@@ -38,6 +38,7 @@ export interface AdminBookingRow {
   total_amount: number;
   currency: string;
   status: "pending" | "confirmed" | "declined";
+  payment_status: "unpaid" | "paid";
   properties: { name: string } | null;
 }
 
@@ -46,7 +47,7 @@ export async function getAllBookings(): Promise<AdminBookingRow[]> {
   const { data, error } = await supabase
     .from("bookings")
     .select(
-      "id, created_at, check_in, check_out, guests, name, email, phone, country, message, nights, total_amount, currency, status, properties(name)",
+      "id, created_at, check_in, check_out, guests, name, email, phone, country, message, nights, total_amount, currency, status, payment_status, properties(name)",
     )
     .order("created_at", { ascending: false })
     .limit(200);

@@ -9,17 +9,18 @@ It doesn't try to teach Next.js or Postgres in general — there are better reso
 1. [The big picture](#the-big-picture)
 2. [How a page load actually works](#how-a-page-load-actually-works)
 3. [How a booking actually works](#how-a-booking-actually-works)
-4. [The database, table by table](#the-database-table-by-table)
-5. [Three layers of admin security](#three-layers-of-admin-security)
-6. [Two properties, one codebase](#two-properties-one-codebase)
-7. [Server Components vs. Client Components](#server-components-vs-client-components)
-8. [Server Actions](#server-actions)
-9. [Caching and revalidation](#caching-and-revalidation)
-10. [External services, and why each one](#external-services-and-why-each-one)
-11. [CI/CD: what runs automatically and when](#cicd-what-runs-automatically-and-when)
-12. [The security model, end to end](#the-security-model-end-to-end)
-13. [Cookbook: how to make common changes](#cookbook-how-to-make-common-changes)
-14. [Glossary](#glossary)
+4. [How a payment actually works](#how-a-payment-actually-works)
+5. [The database, table by table](#the-database-table-by-table)
+6. [Three layers of admin security](#three-layers-of-admin-security)
+7. [Two properties, one codebase](#two-properties-one-codebase)
+8. [Server Components vs. Client Components](#server-components-vs-client-components)
+9. [Server Actions](#server-actions)
+10. [Caching and revalidation](#caching-and-revalidation)
+11. [External services, and why each one](#external-services-and-why-each-one)
+12. [CI/CD: what runs automatically and when](#cicd-what-runs-automatically-and-when)
+13. [The security model, end to end](#the-security-model-end-to-end)
+14. [Cookbook: how to make common changes](#cookbook-how-to-make-common-changes)
+15. [Glossary](#glossary)
 
 ---
 
@@ -46,6 +47,7 @@ Plus, called directly from the server when needed:
   Resend       — booking/reset emails
   Open-Meteo   — live weather (no key needed)
   Gemini       — AI copy suggestions in admin, and the public concierge chatbot
+  Stripe       — optional online payment, TEST MODE ONLY, triggered on booking confirmation
 ```
 
 There is **no separate backend server**. "The backend" *is* Next.js's server-side code — Server Components and Server Actions running on Vercel's infrastructure, talking directly to Supabase. This is the core idea of the App Router: the same framework renders your pages *and* handles your mutations, with a clear line between code that runs on the server (and can safely hold secrets) and code that runs in the browser (and can't).
@@ -81,11 +83,25 @@ This is the most instructive flow in the app because it touches almost every lay
 
 3. Later, you open `/admin/bookings`, see the request, and click **Confirm**. That calls `updateBookingStatus`, a *different* Server Action — this one calls `requireAdmin()` first, which is the whole reason `/admin/bookings` can trust that only you can change a booking's status.
 
+## How a payment actually works
+
+The trickiest thing to get right in any payment integration isn't collecting the card — Stripe's hosted Checkout page handles that entirely, so this app never touches raw card details at all. The trickiest thing is **knowing when a payment actually succeeded**, without trusting the browser to tell you honestly. This project's flow is a small, complete example of the standard pattern:
+
+1. When `updateBookingStatus` confirms a booking, it calls `buildCheckoutSession` (`src/lib/actions/payments.ts`), which asks Stripe to create a **Checkout Session** for that exact booking's amount — stamped with `metadata: { booking_id }` so the booking can be identified later. Stripe returns a hosted URL; that URL goes into the guest's confirmation email as a "Pay online (test mode)" button.
+
+2. The guest clicks it, lands on a page hosted entirely by Stripe (`checkout.stripe.com`), enters card details there — this app's own servers never see them. Stripe's test mode shows its own clear "TEST MODE" banner on that page automatically.
+
+3. After paying (or cancelling), Stripe redirects the guest back to `/payment-complete` on this site. **This page does nothing but display a friendly message** — it does *not* mark anything as paid. If it did, anyone could type that URL into their browser and claim to have paid without ever entering a card.
+
+4. Instead, Stripe's own servers send a `checkout.session.completed` **webhook** — a POST request straight from Stripe to `src/app/api/stripe-webhook/route.ts` — the moment a payment genuinely succeeds. This is the one and only place `payment_status` ever becomes `'paid'`. The handler verifies the request's signature (`stripe.webhooks.constructEvent`) against `STRIPE_WEBHOOK_SECRET` before trusting it at all — without that check, anyone who found the webhook URL could POST a fake "payment succeeded" event themselves.
+
+The lesson generalizes past Stripe: **whenever a third party redirects a user back to your site, treat that redirect as a hint, never as proof.** Proof comes from a signed, server-to-server message the third party sends you directly.
+
 ## The database, table by table
 
 - **`properties`** — one row per property (currently two). Everything in the `/admin/properties` edit form maps directly to a column here.
 - **`property_images`** — hero and gallery photos, one row per image, with a `category` and `sort_order`. `storage_path` is only set for images uploaded through the admin panel (Supabase Storage objects); the originally-seeded Unsplash photos have it `null` because there's nothing to delete from storage for them.
-- **`bookings`** — every request to book, whatever its status. `stay_range` is a *generated column* — Postgres computes it automatically from `check_in`/`check_out` as a `daterange`, which is what makes the double-booking constraint possible (see below).
+- **`bookings`** — every request to book, whatever its status. `stay_range` is a *generated column* — Postgres computes it automatically from `check_in`/`check_out` as a `daterange`, which is what makes the double-booking constraint possible (see below). `payment_status` (`'unpaid'` / `'paid'`) is set to `'paid'` by exactly one code path: the Stripe webhook handler — see [How a payment actually works](#how-a-payment-actually-works).
 - **`admin_users`** — just a list of `user_id`s allowed to act as admin. Deliberately separate from "anyone with a Supabase login," so if guest accounts are ever added, guests are never accidentally treated as admins.
 - **`rate_limit_hits`** — a timestamped log of rate-limited actions (`login:1.2.3.4`, `booking:1.2.3.4`, ...). Old rows get swept out opportunistically (a 1%-chance cleanup on each check) rather than via a scheduled job, since this table's traffic is low enough that a cron job would be overkill.
 
@@ -157,6 +173,7 @@ Every third-party service in this project was chosen for a specific, stated reas
 - **Open-Meteo** (weather) and **OpenStreetMap** (the Location section's map) — both chosen for the same reason: genuinely free, no API key, no account to create. For a small, single feature like "show the current temperature," adding an account and a secret key to manage would have been disproportionate to the value.
 - **Vercel Analytics** — first-party, and specifically avoids adding any new Content-Security-Policy allowances in production, because it's proxied through the same domain the site is already served from (`/_vercel/insights/script.js`). It only needs an external script URL in local development, which is why `next.config.ts`'s CSP allowance for `va.vercel-scripts.com` is scoped to dev only.
 - **Google Gemini** — the LLM integration, powering two separate features: the admin copy-suggestion tool (`src/lib/actions/ai.ts`) and the public concierge chatbot (`src/lib/actions/chat.ts`). Uses the free tier at [aistudio.google.com](https://aistudio.google.com), which needs a real key but no billing setup — the one place a "free, no key" option like Open-Meteo's genuinely doesn't exist for what's needed (a real language model). The chatbot is grounded in real property data re-fetched server-side on every message (never trusting anything the client sends as "context"), and its system prompt explicitly instructs it to decline anything unrelated to the property it's attached to.
+- **Stripe** — the payment processor, and deliberately the one integration that stays in **test mode permanently**: this is a fictional property, so real payment collection was never the goal — the goal was learning how a real payment integration is actually built (Checkout Sessions, webhooks, signature verification) without the legal and ethical problems of charging strangers for a stay that doesn't exist. `sk_test_...` keys physically cannot process a real charge, regardless of what card details are entered.
 
 ## CI/CD: what runs automatically and when
 
@@ -181,6 +198,7 @@ Pulling together everything above into one list, roughly in the order a request 
 6. **`requireAdmin()`** — the real "is this actually the admin" check, re-run at the top of every admin page and every admin Server Action.
 7. **Row Level Security** — the database's own last line of defense, re-checked on every single query regardless of what the application code did or didn't verify.
 8. **Server-side file validation** on uploads — MIME type and size are checked in the Server Action itself, not just via the `accept` attribute on the file input (which a malicious client can simply ignore).
+9. **Webhook signature verification** — the Stripe webhook checks a cryptographic signature before trusting a single byte of the request, since it's the one endpoint in this app that anyone on the internet can POST to directly.
 
 No single layer here is doing everything — that's deliberate. A bug in `requireAdmin()` wouldn't expose guest data, because RLS would still block it. A bug in RLS wouldn't let an anonymous user insert a booking, because there's no INSERT policy for it to fail. Layered defense means one mistake doesn't become one incident.
 
@@ -201,6 +219,7 @@ No single layer here is doing everything — that's deliberate. A bug in `requir
 ## Glossary
 
 - **CI (Continuous Integration)** — automatically running checks (tests, builds) every time code changes, instead of relying on someone to remember to run them by hand. `.github/workflows/e2e.yml` is this project's CI: it runs the full test suite on every push, so a broken change shows up as a red ❌ on GitHub within about a minute, not whenever someone next happens to test manually.
+- **Webhook** — a request a third-party service (Stripe, in this project) sends *to* your server the moment something happens on their end, rather than your server having to repeatedly ask "has it happened yet?" Verified by a cryptographic signature so your endpoint can trust it actually came from that service, not from anyone who found the URL.
 - **RLS (Row Level Security)** — a Postgres feature where the database itself decides, per row, whether the current user is allowed to see or modify it. Enabled per-table; enforced even if the application code has a bug.
 - **Server Component** — a React component that renders on the server and never ships its code to the browser. The App Router default.
 - **Client Component** — a React component marked `"use client"`, which does ship to the browser, because it needs interactivity `useState`/`useEffect`/event handlers provide.

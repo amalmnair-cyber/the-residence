@@ -100,6 +100,7 @@ export async function sendGuestReceivedEmail(input: BookingEmailInput) {
 export async function sendGuestStatusEmail(
   input: BookingEmailInput,
   status: "confirmed" | "declined",
+  paymentUrl?: string,
 ) {
   const html =
     status === "confirmed"
@@ -109,6 +110,19 @@ export async function sendGuestStatusEmail(
             We're delighted to confirm your stay at ${escapeHtml(input.propertyName)}.
           </p>
           ${detailsTable(input)}
+          ${
+            paymentUrl
+              ? `<p style="margin-top: 20px; font-size: 13px; line-height: 1.6;">
+                   Full payment is due on arrival by default — but if you'd like to pay online now instead, you can:
+                 </p>
+                 <p style="margin-top: 14px;">
+                   <a href="${paymentUrl}" style="display: inline-block; background: #14130f; color: #f5f2ec; padding: 10px 20px; border-radius: 999px; text-decoration: none; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;">Pay online (test mode)</a>
+                 </p>
+                 <p style="margin-top: 12px; font-size: 11px; color: #6f6a5e;">
+                   This is a demo site running Stripe's test mode — no real card is charged, whatever you enter.
+                 </p>`
+              : ""
+          }
           <p style="margin-top: 20px; font-size: 13px; line-height: 1.6;">
             Full property and arrival details will follow closer to your stay. If anything
             about your dates or party size changes, just reply to this email.

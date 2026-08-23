@@ -6,6 +6,7 @@ import { formatDate, parseISODate } from "@/lib/date";
 import { cn } from "@/lib/cn";
 import StatusControl from "@/components/admin/StatusControl";
 import DeleteBookingButton from "@/components/admin/DeleteBookingButton";
+import PaymentLinkButton from "@/components/admin/PaymentLinkButton";
 
 interface PageProps {
   searchParams: Promise<{ status?: string }>;
@@ -94,6 +95,18 @@ export default async function AdminBookingsPage({ searchParams }: PageProps) {
                 >
                   {b.status}
                 </span>
+                {b.status === "confirmed" && (
+                  <span
+                    className={cn(
+                      "rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.06em]",
+                      b.payment_status === "paid"
+                        ? "bg-brass/15 text-brass"
+                        : "bg-line-soft text-stone",
+                    )}
+                  >
+                    {b.payment_status === "paid" ? "Paid" : "Unpaid"}
+                  </span>
+                )}
               </div>
             </summary>
 
@@ -121,6 +134,14 @@ export default async function AdminBookingsPage({ searchParams }: PageProps) {
                 <div>
                   <p className="mb-2 text-[11px] uppercase tracking-[0.1em] text-stone">Status</p>
                   <StatusControl bookingId={b.id} status={b.status} />
+                  {b.status === "confirmed" && b.payment_status !== "paid" && (
+                    <div className="mt-4">
+                      <p className="mb-2 text-[11px] uppercase tracking-[0.1em] text-stone">
+                        Payment
+                      </p>
+                      <PaymentLinkButton bookingId={b.id} />
+                    </div>
+                  )}
                 </div>
                 <DeleteBookingButton bookingId={b.id} guestName={b.name} />
               </div>

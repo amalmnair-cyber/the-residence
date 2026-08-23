@@ -8,6 +8,7 @@ import { sendBookingNotification, sendGuestReceivedEmail, sendGuestStatusEmail }
 import { bookingInputSchema } from "@/lib/validation";
 import { nightsBetween, parseISODate, toISODateString } from "@/lib/date";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { buildCheckoutSession } from "@/lib/actions/payments";
 
 export interface SubmitBookingResult {
   ok: boolean;
@@ -169,6 +170,19 @@ export async function updateBookingStatus(
   // Guests only hear back on an actual decision — flipping back to
   // "pending" is a rare admin correction, not something worth an email.
   if (row && (status === "confirmed" || status === "declined")) {
+    let paymentUrl: string | undefined;
+    if (status === "confirmed") {
+      // Non-fatal like the email below: a booking is still validly
+      // confirmed even if link generation fails this once — admin can
+      // regenerate one from the bookings dashboard.
+      try {
+        const checkout = await buildCheckoutSession(bookingId);
+        if (checkout.ok) paymentUrl = checkout.url;
+      } catch (err) {
+        console.error("checkout session creation failed", err);
+      }
+    }
+
     try {
       await sendGuestStatusEmail(
         {
@@ -187,6 +201,7 @@ export async function updateBookingStatus(
           currency: row.currency,
         },
         status,
+        paymentUrl,
       );
     } catch (err) {
       console.error("guest status email failed", err);
