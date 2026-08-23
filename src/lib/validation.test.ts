@@ -44,6 +44,7 @@ function validBooking() {
     email: "guest@example.com",
     phone: "+44 7700 900111",
     country: "United Kingdom",
+    paymentPreference: "arrival" as const,
   };
 }
 

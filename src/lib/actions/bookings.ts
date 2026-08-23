@@ -34,7 +34,7 @@ export async function submitBooking(input: unknown): Promise<SubmitBookingResult
     return { ok: false, message: "Too many requests. Please try again in a few minutes." };
   }
 
-  const { propertyId, checkIn, checkOut, guests, name, email, phone, country, message } =
+  const { propertyId, checkIn, checkOut, guests, name, email, phone, country, message, paymentPreference } =
     parsed.data;
 
   const supabase = createAdminClient();
@@ -76,6 +76,7 @@ export async function submitBooking(input: unknown): Promise<SubmitBookingResult
       cleaning_fee: property.cleaning_fee,
       total_amount: totalAmount,
       currency: property.currency,
+      payment_preference: paymentPreference,
     })
     .select("id")
     .single();
@@ -99,6 +100,7 @@ export async function submitBooking(input: unknown): Promise<SubmitBookingResult
     guests,
     totalAmount,
     currency: property.currency,
+    paymentPreference,
   };
 
   // Both non-fatal — the booking itself is already saved and is the source
@@ -136,7 +138,7 @@ export async function updateBookingStatus(
     .update({ status, updated_at: new Date().toISOString() })
     .eq("id", bookingId)
     .select(
-      "name, email, phone, country, message, check_in, check_out, nights, guests, total_amount, currency, properties(name)",
+      "name, email, phone, country, message, check_in, check_out, nights, guests, total_amount, currency, payment_preference, properties(name)",
     )
     .single();
   const row = rawRow as unknown as
@@ -152,6 +154,7 @@ export async function updateBookingStatus(
         guests: number;
         total_amount: number;
         currency: string;
+        payment_preference: "arrival" | "upfront";
         properties: { name: string } | null;
       }
     | null;
@@ -171,10 +174,12 @@ export async function updateBookingStatus(
   // "pending" is a rare admin correction, not something worth an email.
   if (row && (status === "confirmed" || status === "declined")) {
     let paymentUrl: string | undefined;
-    if (status === "confirmed") {
+    if (status === "confirmed" && row.payment_preference === "upfront") {
       // Non-fatal like the email below: a booking is still validly
       // confirmed even if link generation fails this once — admin can
-      // regenerate one from the bookings dashboard.
+      // regenerate one from the bookings dashboard. Guests who chose
+      // "arrival" don't get one generated automatically at all — an admin
+      // can still create one manually via PaymentLinkButton either way.
       try {
         const checkout = await buildCheckoutSession(bookingId);
         if (checkout.ok) paymentUrl = checkout.url;

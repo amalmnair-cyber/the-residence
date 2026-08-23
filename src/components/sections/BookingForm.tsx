@@ -55,6 +55,7 @@ export default function BookingForm({
   const [checkIn, setCheckIn] = useState<Date | null>(null);
   const [checkOut, setCheckOut] = useState<Date | null>(null);
   const [guests, setGuests] = useState(2);
+  const [paymentPreference, setPaymentPreference] = useState<"arrival" | "upfront">("arrival");
   const [values, setValues] = useState<FormValues>(initialValues);
   const [website, setWebsite] = useState(""); // honeypot
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({});
@@ -109,6 +110,7 @@ export default function BookingForm({
       phone: values.phone,
       country: values.country,
       message: values.message || undefined,
+      paymentPreference,
       website,
     });
     setSubmitting(false);
@@ -146,7 +148,8 @@ export default function BookingForm({
         </p>
         <p className="mt-1 text-[15px] text-ink">
           Estimated total {property.currency}
-          {total.toLocaleString("en-GB")} · payable on arrival
+          {total.toLocaleString("en-GB")}
+          {paymentPreference === "upfront" ? " · pay online once confirmed" : " · payable on arrival"}
         </p>
         <p className="mt-6 max-w-sm text-[13px] leading-relaxed text-stone">
           A member of our reservations team will confirm availability
@@ -245,6 +248,42 @@ export default function BookingForm({
             {dateError && (
               <p className="animate-[panel-in_0.25s_ease-out] pt-2 text-[12px] text-red-600">
                 {dateError}
+              </p>
+            )}
+          </div>
+
+          <div className="mt-8 border-t border-line pt-6">
+            <p className="text-[11px] uppercase tracking-[0.16em] text-stone">
+              When would you like to pay?
+            </p>
+            <div className="mt-3 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setPaymentPreference("arrival")}
+                className={`cursor-pointer rounded-full border px-4 py-2 text-[12px] transition-colors ${
+                  paymentPreference === "arrival"
+                    ? "border-ink bg-ink text-bone"
+                    : "border-line text-stone hover:border-ink hover:text-ink"
+                }`}
+              >
+                On arrival
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentPreference("upfront")}
+                className={`cursor-pointer rounded-full border px-4 py-2 text-[12px] transition-colors ${
+                  paymentPreference === "upfront"
+                    ? "border-ink bg-ink text-bone"
+                    : "border-line text-stone hover:border-ink hover:text-ink"
+                }`}
+              >
+                Pay online now
+              </button>
+            </div>
+            {paymentPreference === "upfront" && (
+              <p className="mt-2 text-[11px] leading-relaxed text-stone">
+                You&apos;ll receive a secure payment link once your stay is confirmed. Demo
+                site — this runs in Stripe test mode, no real card is ever charged.
               </p>
             )}
           </div>

@@ -16,6 +16,11 @@ export const bookingInputSchema = z.object({
   phone: z.string().trim().regex(phonePattern, "Please enter a valid phone number."),
   country: z.string().min(1, "Please select your country."),
   message: z.string().trim().max(2000).optional(),
+  // Guest's preference, captured at request time. Only changes what happens
+  // once an admin confirms: "upfront" gets a Stripe (test-mode) payment
+  // link generated and emailed automatically; "arrival" doesn't — an admin
+  // can still generate one manually later either way.
+  paymentPreference: z.enum(["arrival", "upfront"]),
   // Honeypot: real visitors never fill this (it's visually hidden). Bots often do.
   website: z.string().max(0).optional(),
 });

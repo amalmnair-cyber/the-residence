@@ -121,6 +121,10 @@ export default async function AdminBookingsPage({ searchParams }: PageProps) {
                 <p>
                   <span className="text-ink">Country:</span> {b.country}
                 </p>
+                <p>
+                  <span className="text-ink">Wants to pay:</span>{" "}
+                  {b.payment_preference === "upfront" ? "Online, once confirmed" : "On arrival"}
+                </p>
                 {b.message && (
                   <p>
                     <span className="text-ink">Message:</span> {b.message}

@@ -17,6 +17,7 @@ interface BookingEmailInput {
   guests: number;
   totalAmount: number;
   currency: string;
+  paymentPreference?: "arrival" | "upfront";
 }
 
 function getClient() {
@@ -57,6 +58,7 @@ export async function sendBookingNotification(input: BookingEmailInput) {
       <tr><td style="padding: 6px 0; color: #6f6a5e;">Dates</td><td style="padding: 6px 0;">${dates} (${input.nights} nights)</td></tr>
       <tr><td style="padding: 6px 0; color: #6f6a5e;">Guests</td><td style="padding: 6px 0;">${input.guests}</td></tr>
       <tr><td style="padding: 6px 0; color: #6f6a5e;">Total</td><td style="padding: 6px 0;">${input.currency}${input.totalAmount.toLocaleString("en-GB")}</td></tr>
+      <tr><td style="padding: 6px 0; color: #6f6a5e;">Wants to pay</td><td style="padding: 6px 0;">${input.paymentPreference === "upfront" ? "Online, once confirmed" : "On arrival"}</td></tr>
       <tr><td style="padding: 6px 0; color: #6f6a5e;">Email</td><td style="padding: 6px 0;">${escapeHtml(input.email)}</td></tr>
       <tr><td style="padding: 6px 0; color: #6f6a5e;">Phone</td><td style="padding: 6px 0;">${escapeHtml(input.phone)}</td></tr>
       <tr><td style="padding: 6px 0; color: #6f6a5e;">Country</td><td style="padding: 6px 0;">${escapeHtml(input.country)}</td></tr>
