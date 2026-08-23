@@ -7,6 +7,9 @@ import ScrollProgress from "@/components/layout/ScrollProgress";
 import Navbar from "@/components/layout/Navbar";
 import { getProperties, getPropertyBySlug } from "@/lib/queries/properties";
 
+// Matches the page's own revalidate — see the comment there.
+export const revalidate = 60;
+
 export default async function PropertyLayout({
   children,
   params,

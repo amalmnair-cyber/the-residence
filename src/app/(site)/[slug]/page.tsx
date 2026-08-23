@@ -11,12 +11,32 @@ import Lifestyle from "@/components/sections/Lifestyle";
 import Booking from "@/components/sections/Booking";
 import Footer from "@/components/layout/Footer";
 import ChatWidget from "@/components/ui/ChatWidget";
-import { getPropertyBySlug, getPropertyImages } from "@/lib/queries/properties";
+import { getProperties, getPropertyBySlug, getPropertyImages } from "@/lib/queries/properties";
 import { unsplash } from "@/lib/unsplash";
 import { site } from "@/data/content";
 import { richContentBySlug } from "@/data/property-content";
 import { propertyCoordinates } from "@/data/coordinates";
 import { getCurrentWeather } from "@/lib/weather";
+
+// Property content barely changes (admin edits are the only thing that
+// touch it, and those already call revalidatePath for an immediate
+// update) — no need to hit the database fresh on every single visit. This
+// is a safety-net ceiling, not the primary invalidation path. Short
+// enough that the booking calendar's confirmed-dates display doesn't go
+// meaningfully stale; the database's own exclusion constraint is the real
+// guard against a double-booking regardless of what the calendar shows.
+export const revalidate = 60;
+
+// Without this, a dynamic segment like [slug] isn't eligible for static
+// generation at all, regardless of the revalidate export above — Next.js
+// needs to know the concrete param values to prerender in advance. A third
+// property added later would need a redeploy to appear here (or a request
+// to a not-yet-known slug still resolves correctly, just dynamically,
+// until the next build picks it up).
+export async function generateStaticParams() {
+  const properties = await getProperties();
+  return properties.map((p) => ({ slug: p.slug }));
+}
 
 export async function generateMetadata({
   params,

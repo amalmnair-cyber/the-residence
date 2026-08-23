@@ -56,6 +56,12 @@ function buildSystemPrompt(
   return lines.join("\n");
 }
 
+// Model: gemini-3.5-flash-lite — measured directly against gemini-3.6-flash
+// for this exact use case; flash-lite answered consistently in under a
+// second while 3.6-flash ranged from 1.4s to a 38s outlier on an
+// identical prompt. A chat widget is the most latency-sensitive feature
+// in this app, so the faster, more consistent model wins even though
+// 3.6-flash is the "smarter" one on paper.
 export async function sendChatMessage(
   propertySlug: string,
   history: ChatMessage[],
@@ -95,7 +101,7 @@ export async function sendChatMessage(
 
   try {
     const res = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
       {
         method: "POST",
         headers: {

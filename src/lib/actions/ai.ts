@@ -19,6 +19,12 @@ const FIELD_GUIDANCE: Record<"tagline" | "description", string> = {
 // for why. Admin-only feature (requireAdmin gates it), used narrowly to draft
 // a starting point for one field at a time — the admin still reviews and
 // explicitly applies the suggestion, never auto-saved.
+//
+// Model: gemini-3.5-flash-lite, not gemini-3.6-flash — measured directly
+// (not assumed): flash-lite responded in ~0.8s consistently across
+// repeated calls, while 3.6-flash ranged from 1.4s to a 38s outlier for
+// an identical prompt. Flash-lite is explicitly built for short,
+// low-latency tasks like this one.
 export async function suggestPropertyCopy(
   field: "tagline" | "description",
   context: { name: string; location: string; currentValue: string },
@@ -40,7 +46,7 @@ Respond with ONLY the suggested ${field} text, nothing else — no preamble, no 
 
   try {
     const res = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
       {
         method: "POST",
         headers: {
