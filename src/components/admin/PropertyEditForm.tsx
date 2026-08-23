@@ -4,6 +4,7 @@ import { useState, useTransition, type FormEvent } from "react";
 import { updateProperty } from "@/lib/actions/properties";
 import FormField from "@/components/ui/FormField";
 import MagneticButton from "@/components/ui/MagneticButton";
+import AiSuggestButton from "@/components/admin/AiSuggestButton";
 import type { Property } from "@/lib/queries/properties";
 
 export default function PropertyEditForm({ property }: { property: Property }) {
@@ -45,13 +46,22 @@ export default function PropertyEditForm({ property }: { property: Property }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-7">
       <FormField label="Name" name="name" value={fields.name} onChange={set("name")} required />
-      <FormField
-        label="Tagline"
-        name="tagline"
-        value={fields.tagline}
-        onChange={set("tagline")}
-        required
-      />
+      <div>
+        <FormField
+          label="Tagline"
+          name="tagline"
+          value={fields.tagline}
+          onChange={set("tagline")}
+          required
+        />
+        <AiSuggestButton
+          field="tagline"
+          propertyName={fields.name}
+          location={fields.location}
+          currentValue={fields.tagline}
+          onApply={set("tagline")}
+        />
+      </div>
       <FormField
         label="Location"
         name="location"
@@ -59,14 +69,23 @@ export default function PropertyEditForm({ property }: { property: Property }) {
         onChange={set("location")}
         required
       />
-      <FormField
-        label="Description"
-        name="description"
-        as="textarea"
-        value={fields.description}
-        onChange={set("description")}
-        required
-      />
+      <div>
+        <FormField
+          label="Description"
+          name="description"
+          as="textarea"
+          value={fields.description}
+          onChange={set("description")}
+          required
+        />
+        <AiSuggestButton
+          field="description"
+          propertyName={fields.name}
+          location={fields.location}
+          currentValue={fields.description}
+          onApply={set("description")}
+        />
+      </div>
 
       <div className="grid gap-x-6 gap-y-7 sm:grid-cols-2">
         <FormField

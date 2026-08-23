@@ -16,7 +16,7 @@ This is a personal learning project — see [`docs/LEARNING_GUIDE.md`](docs/LEAR
 - **Resend** — outbound email (booking notifications, password reset codes)
 - **Open-Meteo** — live weather on each property's Location section (free, no API key)
 - **Vercel Analytics** — first-party visitor analytics
-- **Anthropic API** — AI-assisted copy suggestions in the admin content editor
+- **Google Gemini** — AI-assisted copy suggestions in the admin content editor (free tier, no card required)
 
 ## Getting started
 
@@ -83,7 +83,7 @@ To turn it on: create a free account at [resend.com](https://resend.com) using t
 
 ### AI-assisted copy (optional)
 
-Without `ANTHROPIC_API_KEY` set, the admin content editor works normally — the "Suggest with AI" buttons just aren't there. To turn it on, create a key at [console.anthropic.com](https://console.anthropic.com) and add it to `.env.local`.
+Without `GEMINI_API_KEY` set, the admin content editor works normally — the "Suggest with AI" buttons just aren't there. To turn it on, create a free key at [aistudio.google.com](https://aistudio.google.com) (no card required) and add it to `.env.local`.
 
 ## Project structure
 
@@ -136,4 +136,4 @@ Both properties share every component and route — `/the-elmstead` and `/the-ki
 
 ## Deploying
 
-Pushing to `main` auto-deploys via Vercel. Add every variable from `.env.local` to the Vercel project (**Project Settings → Environment Variables**) first, or the live site won't be able to reach Supabase/Resend/Anthropic. The two GitHub Actions workflows need their own copies of the relevant secrets set separately (**Repo Settings → Secrets and variables → Actions**) — see each workflow file's header comment for exactly which ones.
+Pushing to `main` auto-deploys via Vercel. Add every variable from `.env.local` to the Vercel project (**Project Settings → Environment Variables**) first, or the live site won't be able to reach Supabase/Resend/Gemini. The two GitHub Actions workflows need their own copies of the relevant secrets set separately (**Repo Settings → Secrets and variables → Actions**) — see each workflow file's header comment for exactly which ones.
