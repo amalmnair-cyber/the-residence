@@ -59,9 +59,15 @@ test("guest can submit a booking request", async ({ page }) => {
   await page.getByRole("button", { name: "Understood" }).click();
   await page.getByRole("button", { name: "Book Now" }).first().click();
 
-  // Jump a month ahead so the visible grid is never "today" or partly in
-  // the past, regardless of what day this test happens to run on.
-  await page.getByRole("button", { name: "Next month" }).click();
+  // Jump 6 months ahead — not just 1 — so the visible grid is never "today"
+  // or partly in the past, and stays clear of real confirmed bookings. A
+  // single month out isn't enough of a margin: a genuine guest booking made
+  // during manual testing collided with "next month" here once real time
+  // had moved on during a long session, failing this test for a reason
+  // that had nothing to do with the code being tested.
+  for (let i = 0; i < 6; i++) {
+    await page.getByRole("button", { name: "Next month" }).click();
+  }
   await page.getByRole("button", { name: "10", exact: true }).click();
   await page.getByRole("button", { name: "15", exact: true }).click();
 
