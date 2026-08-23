@@ -10,6 +10,7 @@ import Location from "@/components/sections/Location";
 import Lifestyle from "@/components/sections/Lifestyle";
 import Booking from "@/components/sections/Booking";
 import Footer from "@/components/layout/Footer";
+import ChatWidget from "@/components/ui/ChatWidget";
 import { getPropertyBySlug, getPropertyImages } from "@/lib/queries/properties";
 import { unsplash } from "@/lib/unsplash";
 import { site } from "@/data/content";
@@ -128,6 +129,7 @@ export default async function PropertyPage({
       )}
       <Booking property={property} />
       <Footer propertyName={property.name} location={property.location} />
+      <ChatWidget propertySlug={slug} propertyName={property.name} />
     </main>
   );
 }
