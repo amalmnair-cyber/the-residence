@@ -45,7 +45,7 @@ Supabase
 Plus, called directly from the server when needed:
   Resend       — booking/reset emails
   Open-Meteo   — live weather (no key needed)
-  Gemini       — AI copy suggestions in admin
+  Gemini       — AI copy suggestions in admin, and the public concierge chatbot
 ```
 
 There is **no separate backend server**. "The backend" *is* Next.js's server-side code — Server Components and Server Actions running on Vercel's infrastructure, talking directly to Supabase. This is the core idea of the App Router: the same framework renders your pages *and* handles your mutations, with a clear line between code that runs on the server (and can safely hold secrets) and code that runs in the browser (and can't).
@@ -156,7 +156,7 @@ Every third-party service in this project was chosen for a specific, stated reas
 - **Resend** — chosen specifically because Supabase's own built-in email sending turned out to be unreliable for delivery (this was a real, debugged issue early in the project — see the git history around `20260822...`). Resend now handles every outbound email: booking notifications, guest receipts, and password reset codes.
 - **Open-Meteo** (weather) and **OpenStreetMap** (the Location section's map) — both chosen for the same reason: genuinely free, no API key, no account to create. For a small, single feature like "show the current temperature," adding an account and a secret key to manage would have been disproportionate to the value.
 - **Vercel Analytics** — first-party, and specifically avoids adding any new Content-Security-Policy allowances in production, because it's proxied through the same domain the site is already served from (`/_vercel/insights/script.js`). It only needs an external script URL in local development, which is why `next.config.ts`'s CSP allowance for `va.vercel-scripts.com` is scoped to dev only.
-- **Google Gemini** — the LLM integration. Uses the free tier at [aistudio.google.com](https://aistudio.google.com), which needs a real key but no billing setup — the one place a "free, no key" option like Open-Meteo's genuinely doesn't exist for what's needed (a real language model). Used narrowly (drafting property copy in admin), not as a general chatbot bolted onto the public site.
+- **Google Gemini** — the LLM integration, powering two separate features: the admin copy-suggestion tool (`src/lib/actions/ai.ts`) and the public concierge chatbot (`src/lib/actions/chat.ts`). Uses the free tier at [aistudio.google.com](https://aistudio.google.com), which needs a real key but no billing setup — the one place a "free, no key" option like Open-Meteo's genuinely doesn't exist for what's needed (a real language model). The chatbot is grounded in real property data re-fetched server-side on every message (never trusting anything the client sends as "context"), and its system prompt explicitly instructs it to decline anything unrelated to the property it's attached to.
 
 ## CI/CD: what runs automatically and when
 
